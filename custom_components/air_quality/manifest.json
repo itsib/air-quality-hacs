@@ -2,9 +2,6 @@
   "domain": "air_quality",
   "name": "Airquality Sensors KRSK",
   "documentation": "https://github.com/itsib/airquality-sensors",
-  "dependencies": {
-    "requests": "*"
-  },
   "codeowners": [
     "@itsib"
   ],
@@ -16,5 +13,5 @@
     "air_quality"
   ],
   "config_flow": true,
-  "version": "0.0.2"
+  "version": "0.0.3"
 }
