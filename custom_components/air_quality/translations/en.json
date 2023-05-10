@@ -1,0 +1,23 @@
+{
+  "title": "Air Quality",
+  "config": {
+    "abort": {
+      "single_instance_allowed": "Already configured. Only a single configuration possible."
+    }
+  },
+  "entity_component": {
+      "_": {
+          "name": "Air Quality"
+      }
+  },
+  "entity": {
+    "sensor": {
+      "place": { "name": "Place" },
+      "aqi": { "name": "AQI" },
+      "aqi_instant": { "name": "AQI Instant" },
+      "pm_2_5": { "name": "PM2.5" },
+      "temperature": { "name": "Temperature" },
+      "humidity": { "name": "Humidity" }
+    }
+  }
+}

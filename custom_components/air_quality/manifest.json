@@ -1,0 +1,15 @@
+{
+    "domain": "air_quality",
+    "name": "Airquality Sensors KRSK",
+    "documentation": "https://github.com/itsib/airquality-sensors",
+    "dependencies": [
+        "http",
+        "frontend"
+    ],
+    "codeowners": ["@itsib"],
+    "iot_class": "cloud_polling",
+    "requirements": ["requests"],
+    "loggers": ["air_quality"],
+    "config_flow": true,
+    "version": "0.0.1"
+}

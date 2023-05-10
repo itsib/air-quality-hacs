@@ -1,0 +1,23 @@
+{
+  "title": "Air Quality",
+  "config": {
+    "abort": {
+      "single_instance_allowed": "Уже настроен. Возможна только одна конфигурация."
+    }
+  },
+  "entity_component": {
+      "_": {
+        "name": "Air Quality"
+      }
+  },
+  "entity": {
+    "sensor": {
+      "place": { "name": "Место" },
+      "aqi": { "name": "Индекс Качества Воздуха" },
+      "aqi_instant": { "name": "Индекс Качества Воздуха Текущий" },
+      "pm_2_5": { "name": "Твердые Частицы 2.5 мкм" },
+      "temperature": { "name": "Температура" },
+      "humidity": { "name": "Влажность" }
+    }
+  }
+}

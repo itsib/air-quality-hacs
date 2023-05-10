@@ -1,0 +1,6 @@
+{
+    "name": "air_quality",
+    "country": ["RU"],
+    "render_readme": true,
+    "homeassistant": "2022.11.5"
+}
