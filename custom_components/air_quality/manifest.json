@@ -1,7 +1,7 @@
 {
   "domain": "air_quality",
   "name": "Airquality Sensors KRSK",
-  "documentation": "https://github.com/itsib/airquality-sensors",
+  "documentation": "https://github.com/itsib/air-quality-hacs",
   "codeowners": [
     "@itsib"
   ],
