@@ -12,12 +12,13 @@
     },
     "entity": {
         "sensor": {
-            "place": { "name": "Place" },
             "aqi": { "name": "AQI" },
             "aqi_instant": { "name": "AQI Instant" },
             "pm_2_5": { "name": "PM2.5" },
+            "pm_10": { "name": "PM10" },
             "temperature": { "name": "Temperature" },
-            "humidity": { "name": "Humidity" }
+            "humidity": { "name": "Humidity" },
+            "pressure": { "name": "Pressure" }
         }
     }
 }

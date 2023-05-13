@@ -16,7 +16,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     UnitOfTemperature,
     CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
-    PERCENTAGE,
+    PERCENTAGE, UnitOfPressure,
 )
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceEntryType
@@ -31,12 +31,11 @@ from .const import (
     DEVICE_MANUFACTURER,
     DEVICE_MODEL,
     ATTRIBUTION,
-    ATTR_PLACE,
     ATTR_AIR_QUALITY_INDEX,
     ATTR_AIR_QUALITY_INDEX_INSTANT,
-    ATTR_PARTICULATE_MATTER_2_5,
+    ATTR_PM_2_5,
     ATTR_TEMPERATURE,
-    ATTR_HUMIDITY,
+    ATTR_HUMIDITY, ATTR_PM_10, ATTR_PRESSURE,
 )
 
 ENTITY_ID_SENSOR_FORMAT = SENSOR_DOMAIN + ".air_quality_{}"
@@ -56,13 +55,6 @@ class AirqualitySensorEntityDescription(SensorEntityDescription, AirqualityEntit
 
 SENSOR_TYPES: tuple[AirqualitySensorEntityDescription, ...] = (
     AirqualitySensorEntityDescription(
-        key=ATTR_PLACE,
-        translation_key=ATTR_PLACE,
-        icon='mdi:map-marker',
-        has_entity_name=True,
-        value_fn=lambda data: data.place,
-    ),
-    AirqualitySensorEntityDescription(
         key=ATTR_AIR_QUALITY_INDEX,
         device_class=SensorDeviceClass.AQI,
         translation_key=ATTR_AIR_QUALITY_INDEX,
@@ -79,11 +71,20 @@ SENSOR_TYPES: tuple[AirqualitySensorEntityDescription, ...] = (
         value_fn=lambda data: data.aqi_instant,
     ),
     AirqualitySensorEntityDescription(
-        key=ATTR_PARTICULATE_MATTER_2_5,
+        key=ATTR_PM_2_5,
         device_class=SensorDeviceClass.PM25,
-        translation_key=ATTR_PARTICULATE_MATTER_2_5,
+        translation_key=ATTR_PM_2_5,
         state_class=SensorStateClass.MEASUREMENT,
         value_fn=lambda data: data.pm_2_5,
+        has_entity_name=True,
+        native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
+    ),
+    AirqualitySensorEntityDescription(
+        key=ATTR_PM_10,
+        device_class=SensorDeviceClass.PM10,
+        translation_key=ATTR_PM_10,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.pm_10,
         has_entity_name=True,
         native_unit_of_measurement=CONCENTRATION_MICROGRAMS_PER_CUBIC_METER,
     ),
@@ -104,6 +105,15 @@ SENSOR_TYPES: tuple[AirqualitySensorEntityDescription, ...] = (
         value_fn=lambda data: data.humidity,
         has_entity_name=True,
         native_unit_of_measurement=PERCENTAGE,
+    ),
+    AirqualitySensorEntityDescription(
+        key=ATTR_PRESSURE,
+        device_class=SensorDeviceClass.PRESSURE,
+        translation_key=ATTR_PRESSURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        value_fn=lambda data: data.pressure,
+        has_entity_name=True,
+        native_unit_of_measurement=UnitOfPressure.MMHG,
     ),
 )
 

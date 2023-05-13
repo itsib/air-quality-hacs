@@ -1,19 +1,19 @@
 """The Air Quality Sensors integration."""
 from __future__ import annotations
+
 import logging
+from datetime import datetime
 from typing import Any
-from datetime import datetime, timedelta
-import requests
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import Platform, EVENT_CORE_CONFIG_UPDATE
 from homeassistant.core import HomeAssistant, callback, CALLBACK_TYPE, Event
 from homeassistant.helpers import event
 from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.typing import ConfigType, StateType
 from homeassistant.helpers.integration_platform import (
     async_process_integration_platform_for_component,
 )
+from homeassistant.helpers.typing import ConfigType, StateType
 from homeassistant.util import dt as dt_util
 
 from .const import (
@@ -21,21 +21,21 @@ from .const import (
     NAME,
     ENTITY_ID,
     DEVICE_MODEL,
-    STATE_OFFLINE,
     ATTRIBUTION,
     DEVICE_MANUFACTURER,
-    ATTR_PLACE,
+    UPDATE_INTERVAL,
     ATTR_AIR_QUALITY_INDEX,
     ATTR_AIR_QUALITY_INDEX_INSTANT,
-    ATTR_PARTICULATE_MATTER_2_5,
+    ATTR_PM_2_5,
+    ATTR_PM_10,
     ATTR_TEMPERATURE,
     ATTR_HUMIDITY,
+    ATTR_PRESSURE,
     API_URL,
 )
-from .utils import closest_points
+from .utils import get_nearest_weather_stations, WeatherStation
 
 LOGGER = logging.getLogger(__name__)
-UPDATE_INTERVAL = timedelta(minutes=5)
 PLATFORMS = [Platform.SENSOR]
 
 
@@ -77,17 +77,16 @@ class Airquality(Entity):
     _attr_name = NAME
     _attr_attribution = ATTRIBUTION
 
-    _attr_place: StateType = None
     _attr_aqi: StateType = None
     _attr_aqi_instant: StateType = None
     _attr_pm_2_5: StateType = None
+    _attr_pm_10: StateType = None
     _attr_temperature: StateType = None
     _attr_humidity: StateType = None
+    _attr_pressure: StateType = None
 
-    _longitude: float | None = None
-    _latitude: float | None = None
-
-    _sites: list[dict[str, Any]] = []
+    _home: tuple[float, float] = None
+    _weather_stations: list[WeatherStation] = []
 
     _config_unsubscribe: CALLBACK_TYPE | None = None
     _update_unsubscribe: CALLBACK_TYPE | None = None
@@ -105,16 +104,16 @@ class Airquality(Entity):
     @callback
     def update_location(self, _: Event | None = None, initial: bool = False) -> None:
         """Update location."""
-        if not initial and self.hass.config.longitude == self._longitude and self.hass.config.latitude == self._latitude:
+        home = (self.hass.config.latitude, self.hass.config.longitude)
+        if not initial and self._home == home:
             return
 
-        self._longitude = self.hass.config.longitude
-        self._latitude = self.hass.config.latitude
+        self._home = home
 
         if self._update_unsubscribe:
             self._update_unsubscribe()
 
-        self.hass.async_add_executor_job(self.update_sites)
+        self.hass.async_add_executor_job(self.update_weather_stations)
 
     @callback
     def unsubscribe(self) -> None:
@@ -125,26 +124,10 @@ class Airquality(Entity):
             self._update_unsubscribe()
 
     @callback
-    def update_sites(self) -> None:
-        url = API_URL + '/projects'
-        r = requests.get(url, headers={'User-Agent': 'Home Assistant', 'Content-Type': 'application/json'})
-        r.raise_for_status()
-
-        projects = r.json().get('data')
-        sites: list[dict[str, Any]] = []
-
-        for project in projects:
-            project_url = API_URL + '/projects/' + str(project.get('id'))
-            r = requests.get(project_url, headers={'User-Agent': 'Home Assistant', 'Content-Type': 'application/json'})
-            if r.status_code == 200:
-                sites.extend(r.json().get('data').get('sites'))
-            else:
-                LOGGER.warning('Request fail. URL: %s', project_url)
-
-        target = {'longitude': self._longitude, 'latitude': self._latitude}
-        self._sites = closest_points(sites, target, 5)
-
-        LOGGER.debug('%s', self._sites)
+    def update_weather_stations(self) -> None:
+        """Fetch nearest weather stations"""
+        self._weather_stations = get_nearest_weather_stations(API_URL, self._home)
+        LOGGER.debug('Found %d weather stations nearby', len(self._weather_stations))
 
         self.async_update_sensors()
 
@@ -154,28 +137,54 @@ class Airquality(Entity):
 
     @callback
     def update_sensors(self, _: datetime | None = None) -> None:
-        data = self._fetch_sensors_states()
-        aqi: float = data.get('aqi')
-        aqi_instant: float = data.get('iaqi')
-        pm25: float = data.get('pm25')
-        temperature: float = data.get('t')
-        humidity: float = data.get('h')
+        aqi: float or None = None
+        aqi_instant: float or None = None
+        pm25: float or None = None
+        pm10: float or None = None
+        temperature: float or None = None
+        humidity: float or None = None
+        pressure: float or None = None
+        timestamp: int or None = None
 
-        LOGGER.info(
-            "AQI: \x1b[33;20m%.2f\x1b[32m AQI Instant: \x1b[33;20m%.2f\x1b[32m PM2.5: \x1b[33;20m%.2f\x1b[32m "
-            "Temperature: \x1b[33;20m%.2f°C\x1b[32m Humidity: \x1b[33;20m%.2f%%\x1b[32m",
-            aqi,
-            aqi_instant,
-            pm25,
-            temperature,
-            humidity,
-        )
+        for weather_station in self._weather_stations:
+            LOGGER.debug('Fetching readings from weather station "%s"', weather_station.name)
+            LOGGER.debug('URL: %s', weather_station.get_url())
+
+            _r = weather_station.get_readings()
+            if _r is None:
+                continue
+
+            _r_timestamp = _r.get('timestamp')
+
+            if timestamp is not None and _r_timestamp < timestamp:
+                LOGGER.debug('Skip outdated %s current %d pass %d', weather_station.id, timestamp, _r_timestamp)
+                continue
+
+            timestamp = _r_timestamp
+
+            aqi = _r['aqi'] if aqi is None and _r['aqi'] is not None else aqi
+            aqi_instant = _r['aqi_instant'] if aqi_instant is None and _r['aqi_instant'] is not None else aqi_instant
+            pm25 = _r['pm25'] if pm25 is None and _r['pm25'] is not None else pm25
+            pm10 = _r['pm10'] if pm10 is None and _r['pm10'] is not None else pm10
+            temperature = _r['temperature'] if temperature is None and _r['temperature'] is not None else temperature
+            humidity = _r['humidity'] if humidity is None and _r['humidity'] is not None else humidity
+            pressure = _r['pressure'] if pressure is None and _r['pressure'] is not None else pressure
+
+        LOGGER.info('AQI: \x1b[33;20m%s\x1b[32m', 'None' if aqi is None else str(aqi))
+        LOGGER.info('AQI Instant: \x1b[33;20m%s\x1b[32m', 'None' if aqi_instant is None else str(aqi_instant))
+        LOGGER.info('PM2.5: \x1b[33;20m%s\x1b[32m', 'None' if pm25 is None else str(pm25))
+        LOGGER.info('PM10: \x1b[33;20m%s\x1b[32m', 'None' if pm10 is None else str(pm10))
+        LOGGER.info('Temperature: \x1b[33;20m%s°C\x1b[32m', 'None' if temperature is None else str(temperature))
+        LOGGER.info('Humidity: \x1b[33;20m%s\x1b[32m', 'None' if humidity is None else str(humidity))
+        LOGGER.info('Pressure: \x1b[33;20m%s\x1b[32m', 'None' if pressure is None else str(pressure))
 
         self._attr_aqi = aqi
         self._attr_aqi_instant = aqi_instant
         self._attr_pm_2_5 = pm25
+        self._attr_pm_10 = pm10
         self._attr_temperature = temperature
         self._attr_humidity = humidity
+        self._attr_pressure = pressure
 
         # Grab current time in case system clock changed since last time we ran.
         next_update = dt_util.utcnow() + UPDATE_INTERVAL
@@ -193,11 +202,6 @@ class Airquality(Entity):
         return None
 
     @property
-    def place(self) -> StateType:
-        """Return place name."""
-        return self._attr_place
-
-    @property
     def aqi(self) -> StateType:
         """Return the Air Quality Index (AQI)."""
         return self._attr_aqi
@@ -213,6 +217,11 @@ class Airquality(Entity):
         return self._attr_pm_2_5
 
     @property
+    def pm_10(self) -> StateType:
+        """Return the particulate matter 10 level."""
+        return self._attr_pm_10
+
+    @property
     def temperature(self) -> StateType:
         """Return the outside temperature."""
         return self._attr_temperature
@@ -223,37 +232,19 @@ class Airquality(Entity):
         return self._attr_humidity
 
     @property
+    def pressure(self) -> StateType:
+        """Return the pressure."""
+        return self._attr_pressure
+
+    @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return the state attributes of the airquality api."""
         return {
-            ATTR_PLACE: self._attr_place,
             ATTR_AIR_QUALITY_INDEX: self._attr_aqi,
             ATTR_AIR_QUALITY_INDEX_INSTANT: self._attr_aqi_instant,
-            ATTR_PARTICULATE_MATTER_2_5: self._attr_pm_2_5,
+            ATTR_PM_2_5: self._attr_pm_2_5,
+            ATTR_PM_10: self._attr_pm_10,
             ATTR_TEMPERATURE: self._attr_temperature,
             ATTR_HUMIDITY: self._attr_humidity,
+            ATTR_PRESSURE: self._attr_pressure,
         }
-
-    def _fetch_sensors_states(self) -> dict[str, Any]:
-        for site in self._sites:
-            url = API_URL + '/data?sites=' + str(site.get('id'))
-
-            LOGGER.debug('Try data fetch from: %s', url)
-
-            r = requests.get(url, headers={'User-Agent': 'Home Assistant', 'Content-Type': 'application/json'})
-            if r.status_code != 200:
-                LOGGER.warning('Response status code: %d', r.status_code)
-                continue
-
-            datas = r.json().get('data')
-            if len(datas) == 0:
-                LOGGER.warning('Response with no data')
-                continue
-
-            data: dict[str, Any] = datas.pop()
-            if 'aqi' in data and 'iaqi' in data and 'pm25' in data and 't' in data and 'h' in data:
-                self._attr_place = site.get('name')
-                return data
-
-
-

@@ -1,5 +1,6 @@
 """Constants of the Airquality Sensors"""
 from typing import Final
+from datetime import timedelta
 
 DOMAIN: Final = "air_quality"
 NAME: Final = "Air Quality"
@@ -11,12 +12,12 @@ ATTRIBUTION: Final = "API provided by air.krasn.ru"
 DEVICE_MANUFACTURER: Final = "air.krasn.ru"
 DEVICE_MODEL: Final = "Air Quality Sensors KRSK"
 
-STATE_ONLINE: Final = "online"
-STATE_OFFLINE: Final = "offline"
+UPDATE_INTERVAL = timedelta(minutes=30)
 
-ATTR_PLACE: Final = "place"
 ATTR_AIR_QUALITY_INDEX: Final = "aqi"
 ATTR_AIR_QUALITY_INDEX_INSTANT: Final = "aqi_instant"
-ATTR_PARTICULATE_MATTER_2_5: Final = "pm_2_5"
+ATTR_PM_2_5: Final = "pm_2_5"
+ATTR_PM_10: Final = "pm_10"
 ATTR_TEMPERATURE: Final = "temperature"
 ATTR_HUMIDITY: Final = "humidity"
+ATTR_PRESSURE: Final = "pressure"

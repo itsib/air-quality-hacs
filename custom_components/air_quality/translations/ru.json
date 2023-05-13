@@ -12,12 +12,13 @@
   },
   "entity": {
     "sensor": {
-      "place": { "name": "Место" },
-      "aqi": { "name": "Индекс Качества Воздуха" },
-      "aqi_instant": { "name": "Индекс Качества Воздуха Текущий" },
-      "pm_2_5": { "name": "Твердые Частицы 2.5 мкм" },
+      "aqi": { "name": "AQI" },
+      "aqi_instant": { "name": "AQI Текущий" },
+      "pm_2_5": { "name": "PM2.5" },
+      "pm_10": { "name": "PM10" },
       "temperature": { "name": "Температура" },
-      "humidity": { "name": "Влажность" }
+      "humidity": { "name": "Влажность" },
+      "pressure": { "name": "Атмосферное Давление" }
     }
   }
 }
