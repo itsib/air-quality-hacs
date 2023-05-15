@@ -10,7 +10,6 @@ export class AirQualityCard extends LitElement {
   @state()
   private config!: AirQualityCardConfig;
 
-  @property({ attribute: false })
   private _hass!: HomeAssistant & { entities: HassEntities };
 
   private _sensors?: AirQualitySensors;
@@ -112,11 +111,11 @@ export class AirQualityCard extends LitElement {
       }
 
       .recommendation {
-        margin-top: 26px;
+        padding-top: 1px;
       }
 
       .recommendation .title {
-        margin-bottom: 10px;
+        margin: 14px 0 4px;
         color: var(--primary-text-color);
         font-size: 16px;
         font-weight: normal;
@@ -256,6 +255,8 @@ export class AirQualityCard extends LitElement {
 
     return html`
       <div class="recommendation">
+        <div class="title">${t('health_effects')}</div>
+        <div class="paragraph">${t(`aqi_levels.${aqiLevel}.effects`)}</div>
         <div class="title">${t('recommendation')}</div>
         <div class="paragraph">${t(`aqi_levels.${aqiLevel}.recommendation`)}</div>
       </div>
@@ -334,7 +335,7 @@ export class AirQualityCard extends LitElement {
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
   type: 'air-quality-card',
-  name: 'Air Quality Card',
+  name: t('card_name'),
   description: 'Displays the readings of the weather station sensors. Provided by Air Quality integration.',
   // supported: supportsButtonPressTileFeature, // Optional
   preview: true,

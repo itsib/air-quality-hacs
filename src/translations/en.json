@@ -1,33 +1,43 @@
 {
+  "card_name": "Air Quality",
   "air_quality_index": "Air quality index (AQI)",
   "air_quality_index_instant": "Air quality index (AQI Instant)",
   "recommendation": "Recommendation:",
+  "health_effects": "Health effects:",
   "aqi_levels": {
     "1": {
-      "label": "The Air is Clean"
+      "label": "The Air is Clean",
+      "effects": "",
+      "recommendation": ""
     },
     "2": {
       "label": "Moderate Pollution",
+      "effects": "The air quality is generally acceptable, but some pollutants may pose a danger to people who are particularly sensitive to air pollution.",
       "recommendation": "Elderly people, children, pregnant women and people suffering from heart disease, asthma or other respiratory diseases should limit outdoor activities."
     },
     "3": {
       "label": "Increased Pollution",
+      "effects": "People who are sensitive to air pollution may experience negative effects of pollutants. For the majority of the population, air pollution does not have a noticeable effect on health.",
       "recommendation": "Elderly people, children, pregnant women and people suffering from heart disease, asthma or other respiratory diseases should significantly limit outdoor activities."
     },
     "4": {
       "label": "High Pollution",
+      "effects": "Everyone can feel the negative impact of air pollution on their health; particularly sensitive people can experience serious problems.",
       "recommendation": "Elderly people, children, pregnant women and people suffering from heart disease, asthma or other respiratory diseases should avoid being outdoors. Everyone else, especially children, should limit their outdoor activities."
     },
     "5": {
       "label": "Very High Pollution",
+      "effects": "An emergency situation with the impact of pollution on human health. All population groups are at risk of health deterioration.",
       "recommendation": "Elderly people, children, pregnant women and people suffering from heart disease, asthma or other respiratory diseases should avoid even a short stay outdoors. Everyone else, especially children, should avoid being outdoors."
     },
     "6": {
       "label": "Climate Catastrophe",
+      "effects": "Catastrophic health hazard: There may be serious consequences for human health.",
       "recommendation": "All groups of the population should avoid even a short stay in the open air."
     },
     "7": {
       "label": "Death and Destruction",
+      "effects": "Catastrophic health hazard: serious consequences for human health.",
       "recommendation": "All population groups are advised to stay indoors with filtered air. In the open air, it is necessary to use respirators."
     }
   },
