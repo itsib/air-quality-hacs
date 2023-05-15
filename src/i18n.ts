@@ -23,11 +23,14 @@ function translateString(string: string, translatedStrings: string | Record<stri
 }
 
 function language(): string {
-  let lang: string | null | undefined = localStorage.getItem('i18nextLng');
-  if (!lang) {
-    lang = localStorage.getItem('selectedLanguage')?.replace(/['"]+/g, '').replace('-', '_');
+  let lang: string | null | undefined = localStorage.getItem('selectedLanguage')?.replace(/['"]+/g, '').replace('-', '_');
+  if (lang === 'null') {
+    lang = undefined;
   }
   if (!lang) {
+    lang = localStorage.getItem('i18nextLng');
+  }
+  if (!lang || lang === 'null') {
     lang = 'en';
   }
   return lang;
