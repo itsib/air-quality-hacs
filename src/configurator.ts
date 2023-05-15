@@ -67,9 +67,6 @@ export class AirQualityCardConfigurator extends ScopedRegistryHost(LitElement) i
   }
 
   private _initialize(): void {
-    console.log(this.hass);
-    console.log(this._config);
-    console.log(this._helpers);
     if (this.hass === undefined) return;
     if (this._config === undefined) return;
     if (this._helpers === undefined) return;

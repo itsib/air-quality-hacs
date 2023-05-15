@@ -7,25 +7,49 @@ const translations: any = {
   ru: ru,
 };
 
-export function t(string: string, search = '', replace = ''): string {
-  const lang = (localStorage.getItem('selectedLanguage') || 'en').replace(/['"]+/g, '').replace('-', '_');
-  const keyParts = string.split('.');
+function translateString(string: string, translatedStrings: string | Record<string, any>): string | undefined {
+  if (typeof translatedStrings === 'string') {
+    return translatedStrings;
+  }
+  const splitted = string.split('.');
+  const [key, ...otherKeys] = splitted;
 
-  let strings;
-  try {
-    strings = { ...translations[lang] };
-  } catch (e) {
-    strings = { ...translations['en'] };
+  const translated = translatedStrings[key];
+  if (!translated || typeof translated === 'string') {
+    return translated;
   }
 
-  let translated = keyParts.reduce((o, i) => o[i], strings);
+  return translateString(otherKeys && otherKeys.length > 0 ? otherKeys.join('.') : '', translated);
+}
 
+function language(): string {
+  let lang: string | null | undefined = localStorage.getItem('i18nextLng');
+  if (!lang) {
+    lang = localStorage.getItem('selectedLanguage')?.replace(/['"]+/g, '').replace('-', '_');
+  }
+  if (!lang) {
+    lang = 'en';
+  }
+  return lang;
+}
+
+export function t(string: string, search = '', replace = ''): string {
+  const lang = language();
+
+  let translatedStrings;
+  try {
+    translatedStrings = { ...translations[lang] };
+  } catch (e) {
+    translatedStrings = { ...translations['en'] };
+  }
+
+  let translated = translateString(string, translatedStrings);
   if (translated === undefined) {
-    translated = keyParts.reduce((o, i) => o[i], { ...translations['en'] });
+    translated = translateString(string, { ...translations['en'] });
   }
 
   if (translated && search !== '' && replace !== '') {
     translated = translated.replace(search, replace);
   }
-  return translated;
+  return translated ?? '';
 }
