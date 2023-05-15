@@ -1,0 +1,42 @@
+{
+  "air_quality_index": "Air quality index (AQI)",
+  "air_quality_index_instant": "Air quality index (AQI Instant)",
+  "recommendation": "Recommendation:",
+  "aqi_levels": {
+    "1": {
+      "label": "The Air is Clean"
+    },
+    "2": {
+      "label": "Moderate Pollution",
+      "recommendation": "Elderly people, children, pregnant women and people suffering from heart disease, asthma or other respiratory diseases should limit outdoor activities."
+    },
+    "3": {
+      "label": "Increased Pollution",
+      "recommendation": "Elderly people, children, pregnant women and people suffering from heart disease, asthma or other respiratory diseases should significantly limit outdoor activities."
+    },
+    "4": {
+      "label": "High Pollution",
+      "recommendation": "Elderly people, children, pregnant women and people suffering from heart disease, asthma or other respiratory diseases should avoid being outdoors. Everyone else, especially children, should limit their outdoor activities."
+    },
+    "5": {
+      "label": "Very High Pollution",
+      "recommendation": "Elderly people, children, pregnant women and people suffering from heart disease, asthma or other respiratory diseases should avoid even a short stay outdoors. Everyone else, especially children, should avoid being outdoors."
+    },
+    "6": {
+      "label": "Climate Catastrophe",
+      "recommendation": "All groups of the population should avoid even a short stay in the open air."
+    },
+    "7": {
+      "label": "Death and Destruction",
+      "recommendation": "All population groups are advised to stay indoors with filtered air. In the open air, it is necessary to use respirators."
+    }
+  },
+  "aqi_calc_method_selector": {
+    "label": "Choose the AQI calculation method",
+    "normal_way": "Average per day",
+    "instant_way": "Instant"
+  },
+  "invalid_configuration": "Invalid Configuration",
+  "invalid_sensors_count": "The number of Air Quality integration sensors should be 7",
+  "invalid_sensor": "Sensor {sensorName} not found"
+}

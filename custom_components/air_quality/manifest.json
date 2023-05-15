@@ -1,17 +1,21 @@
 {
-    "codeowners": [
-        "@itsib"
-    ],
-    "config_flow": true,
-    "documentation": "https://github.com/itsib/air-quality-hacs",
-    "domain": "air_quality",
-    "iot_class": "cloud_polling",
-    "loggers": [
-        "air_quality"
-    ],
-    "name": "Airquality Sensors KRSK",
-    "requirements": [
-        "requests"
-    ],
-    "version": "0.0.5"
+  "codeowners": [
+    "@itsib"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/itsib/air-quality-hacs",
+  "domain": "air_quality",
+  "iot_class": "cloud_polling",
+  "loggers": [
+    "air_quality"
+  ],
+  "name": "Airquality Sensors KRSK",
+  "requirements": [
+    "requests"
+  ],
+  "dependencies": [
+    "http",
+    "lovelace"
+  ],
+  "version": "0.0.5"
 }

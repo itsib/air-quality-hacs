@@ -1,0 +1,46 @@
+version: '3'
+services:
+  ha_app:
+    container_name: ha_app
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - ./.config:/config
+      - ./custom_components:/config/custom_components
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+
+  ha_db:
+    container_name: ha_db
+    image: mariadb
+    restart: always
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./.database:/var/lib/mysql
+    environment:
+      MARIADB_ROOT_PASSWORD: jtIKM3ll3mBkCK5fw
+      MARIADB_DATABASE: homeassistant
+      MARIADB_USER: homeassistant
+      MARIADB_PASSWORD: SRWB2Rl7thUdQB3uCfJ
+    networks:
+      - ha_net
+
+  ha_mqtt:
+    container_name: ha_mqtt
+    image: eclipse-mosquitto:2
+    restart: always
+    volumes:
+      - ./.mqtt/config/:/mosquitto/config/:ro
+      - ./.mqtt/log/:/mosquitto/log/
+      - ./.mqtt/data:/mosquitto/data/
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    networks:
+      - ha_net
+
+networks:
+  ha_net:
+    driver: bridge

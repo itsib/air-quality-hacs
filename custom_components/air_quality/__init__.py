@@ -1,10 +1,13 @@
 """The Air Quality Sensors integration."""
 from __future__ import annotations
 
+import os
 import logging
+import time
 from datetime import datetime
 from typing import Any
 
+from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import Platform, EVENT_CORE_CONFIG_UPDATE
 from homeassistant.core import HomeAssistant, callback, CALLBACK_TYPE, Event
@@ -41,6 +44,13 @@ PLATFORMS = [Platform.SENSOR]
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Track the state of the Airquality sensors."""
+
+    # Register UI lovelace card
+    card_file_path = os.path.dirname(os.path.realpath(__file__)) + "/lovelace"
+    hass.http.register_static_path("/air-quality", card_file_path, False)
+    add_extra_js_url(hass, "/air-quality/air-quality-card.js?cache=" + str(time.time()), es5=False)
+
+    # Async init entry
     hass.async_create_task(
         hass.config_entries.flow.async_init(
             DOMAIN,
