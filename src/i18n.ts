@@ -9,18 +9,22 @@ const translations: any = {
 
 export function t(string: string, search = '', replace = ''): string {
   const lang = (localStorage.getItem('selectedLanguage') || 'en').replace(/['"]+/g, '').replace('-', '_');
+  const keyParts = string.split('.');
 
-  let translated: string;
-
+  let strings;
   try {
-    translated = string.split('.').reduce((o, i) => o[i], translations[lang]);
+    strings = { ...translations[lang] };
   } catch (e) {
-    translated = string.split('.').reduce((o, i) => o[i], translations['en']);
+    strings = { ...translations['en'] };
   }
 
-  if (translated === undefined) translated = string.split('.').reduce((o, i) => o[i], translations['en']);
+  let translated = keyParts.reduce((o, i) => o[i], strings);
 
-  if (search !== '' && replace !== '') {
+  if (translated === undefined) {
+    translated = keyParts.reduce((o, i) => o[i], { ...translations['en'] });
+  }
+
+  if (translated && search !== '' && replace !== '') {
     translated = translated.replace(search, replace);
   }
   return translated;
