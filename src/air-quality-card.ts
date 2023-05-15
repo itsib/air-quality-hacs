@@ -76,11 +76,10 @@ export class AirQualityCard extends LitElement {
       }
 
       .readings {
-        margin-top: 26px;
-        margin-bottom: 16px;
+        margin: 26px -10px 16px;
         display: flex;
         flex-direction: row;
-        align-items: center;
+        align-items: stretch;
         justify-content: space-around;
       }
 
@@ -90,10 +89,13 @@ export class AirQualityCard extends LitElement {
       }
 
       .readings .sensor .label {
+        height: 20px;
         margin-bottom: 8px;
         color: var(--secondary-text-color);
         font-size: 13px;
         font-weight: 400;
+        line-height: 20px;
+        white-space: nowrap;
       }
 
       .readings .sensor .icon img {
@@ -102,8 +104,11 @@ export class AirQualityCard extends LitElement {
       }
 
       .readings .sensor .value {
+        height: 20px;
         margin-top: 8px;
         font-size: 13px;
+        line-height: 20px;
+        white-space: nowrap;
       }
 
       .recommendation {
@@ -121,86 +126,6 @@ export class AirQualityCard extends LitElement {
         color: var(--secondary-text-color);
       }
     `;
-
-    // const levelStyle = css`
-    //   .environment-card-level {
-    //     display: flex;
-    //     flex-direction: column;
-    //     align-items: center;
-    //   }
-    //
-    //   .environment-card-level-face {
-    //     width: 82px;
-    //     height: 82px;
-    //     padding: 6px;
-    //     border-radius: 50%;
-    //     box-sizing: border-box;
-    //   }
-    //
-    //   .environment-card-level-label {
-    //     margin-top: 10px;
-    //     padding: 0 6px;
-    //     text-align: center;
-    //     color: var(--primary-text-color);
-    //     font-size: 12px;
-    //     border-radius: 4px;
-    //   }
-    // `;
-    //
-    // const infoStyle = css`
-    //   .environment-card-info {
-    //     padding-left: 16px;
-    //     flex-grow: 1;
-    //   }
-    //
-    //   .environment-card-info-entities {
-    //     list-style: none;
-    //     margin: 0;
-    //     padding: 0;
-    //   }
-    //
-    //   .environment-card-info-entity {
-    //     margin: 6px 0;
-    //     color: var(--primary-text-color);
-    //     display: flex;
-    //     align-items: center;
-    //   }
-    //
-    //   .environment-card-info-entity:first-child {
-    //     margin-top: 0;
-    //   }
-    //
-    //   .environment-card-info-entity .icon {
-    //     color: var(--paper-item-icon-color, #44739e);
-    //   }
-    //
-    //   .environment-card-info-entity .name {
-    //     margin-left: 16px;
-    //     margin-right: 8px;
-    //     white-space: nowrap;
-    //     overflow: hidden;
-    //     text-overflow: ellipsis;
-    //     flex: 1 1 30%;
-    //   }
-    // `;
-    //
-    // const footerStyle = css`
-    //   .card-footer {
-    //     padding: 0 16px 16px;
-    //   }
-    //
-    //   .card-footer .sub-title {
-    //     margin-top: 6px;
-    //     margin-bottom: 10px;
-    //     color: var(--primary-text-color);
-    //     font-weight: normal;
-    //   }
-    //
-    //   .card-footer .recommendation {
-    //     color: var(--secondary-text-color);
-    //   }
-    // `;
-    // return [containerStyle, levelStyle, infoStyle, footerStyle];
   }
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
@@ -210,7 +135,6 @@ export class AirQualityCard extends LitElement {
 
   public static getStubConfig(): Record<string, unknown> {
     return {
-      name: 'Air Quality',
       aqi_type: 'daily',
     };
   }

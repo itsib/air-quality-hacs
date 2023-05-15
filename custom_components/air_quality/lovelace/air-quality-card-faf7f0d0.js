@@ -106,11 +106,10 @@ const dt=t=>e=>"function"==typeof e?((t,e)=>(customElements.define(t,e),e))(t,e)
       }
 
       .readings {
-        margin-top: 26px;
-        margin-bottom: 16px;
+        margin: 26px -10px 16px;
         display: flex;
         flex-direction: row;
-        align-items: center;
+        align-items: stretch;
         justify-content: space-around;
       }
 
@@ -120,10 +119,13 @@ const dt=t=>e=>"function"==typeof e?((t,e)=>(customElements.define(t,e),e))(t,e)
       }
 
       .readings .sensor .label {
+        height: 20px;
         margin-bottom: 8px;
         color: var(--secondary-text-color);
         font-size: 13px;
         font-weight: 400;
+        line-height: 20px;
+        white-space: nowrap;
       }
 
       .readings .sensor .icon img {
@@ -132,8 +134,11 @@ const dt=t=>e=>"function"==typeof e?((t,e)=>(customElements.define(t,e),e))(t,e)
       }
 
       .readings .sensor .value {
+        height: 20px;
         margin-top: 8px;
         font-size: 13px;
+        line-height: 20px;
+        white-space: nowrap;
       }
 
       .recommendation {
@@ -150,7 +155,7 @@ const dt=t=>e=>"function"==typeof e?((t,e)=>(customElements.define(t,e),e))(t,e)
       .recommendation .paragraph {
         color: var(--secondary-text-color);
       }
-    `}static async getConfigElement(){return await import("./configurator-4ddda29e.js"),document.createElement("air-quality-card-configurator")}static getStubConfig(){return{name:"Air Quality",aqi_type:"daily"}}render(){return L`
+    `}static async getConfigElement(){return await import("./configurator-fbde560a.js"),document.createElement("air-quality-card-configurator")}static getStubConfig(){return{name:"Air Quality",aqi_type:"daily"}}render(){return L`
       <ha-card>
         ${this._renderAqiBlock()}
         <span></span>
