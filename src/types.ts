@@ -10,6 +10,8 @@ declare global {
 export interface AirQualityCardConfig extends LovelaceCardConfig {
   type: string;
   aqi_type?: 'hourly' | 'daily';
+  enable_recommendation?: boolean;
+  display_first_recommendation?: boolean;
 }
 
 export interface HassEntities {

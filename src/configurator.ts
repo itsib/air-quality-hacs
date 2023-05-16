@@ -6,7 +6,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { formfieldDefinition } from '../elements/formfield';
 import { selectDefinition } from '../elements/select';
 import { textfieldDefinition } from '../elements/textfield';
-import { SingleSelectedEvent } from '@material/mwc-list/mwc-list-foundation';
+import { switchDefinition } from '../elements/switch';
 import { t } from './i18n';
 
 @customElement('air-quality-card-configurator')
@@ -25,6 +25,7 @@ export class AirQualityCardConfigurator extends ScopedRegistryHost(LitElement) i
   static elementDefinitions = {
     ...textfieldDefinition,
     ...selectDefinition,
+    ...switchDefinition,
     ...formfieldDefinition,
   };
 
@@ -42,10 +43,6 @@ export class AirQualityCardConfigurator extends ScopedRegistryHost(LitElement) i
     return true;
   }
 
-  get _aqi_type(): 'hourly' | 'daily' {
-    return this._config?.aqi_type || 'daily';
-  }
-
   protected render(): TemplateResult | void {
     if (!this.hass || !this._helpers) {
       return html``;
@@ -55,14 +52,26 @@ export class AirQualityCardConfigurator extends ScopedRegistryHost(LitElement) i
       <mwc-select
         naturalMenuWidth
         fixedMenuPosition
-        .label=${t('aqi_calculation_method_selector.label')}
-        .value=${this._aqi_type}
+        .label=${t('configurator.selector_label')}
+        .value=${this._config?.aqi_type}
         @selected=${this._aqiTypeChanged}
         @closed=${ev => ev.stopPropagation()}
       >
-        <mwc-list-item value="daily">${t('aqi_calculation_method_selector.normal_way')}</mwc-list-item>
-        <mwc-list-item value="hourly">${t('aqi_calculation_method_selector.instant_way')}</mwc-list-item>
+        <mwc-list-item value="daily">${t('configurator.option_daily')}</mwc-list-item>
+        <mwc-list-item value="hourly">${t('configurator.option_hourly')}</mwc-list-item>
       </mwc-select>
+
+      <div class="switch-block">
+        <mwc-formfield .label=${t('configurator.toggle_recommendations_label')}>
+          <mwc-switch .checked=${!!this._config?.enable_recommendation} @change=${this._toggleRecommendation}></mwc-switch>
+        </mwc-formfield>
+      </div>
+
+      <div class="switch-block">
+        <mwc-formfield .label=${t('configurator.toggle_first_recommendation')}>
+          <mwc-switch .checked=${!!this._config?.display_first_recommendation} @change=${this._toggleFirstRecommendation}></mwc-switch>
+        </mwc-formfield>
+      </div>
     `;
   }
 
@@ -77,7 +86,7 @@ export class AirQualityCardConfigurator extends ScopedRegistryHost(LitElement) i
     this._helpers = await (window as any).loadCardHelpers();
   }
 
-  private _aqiTypeChanged(event: SingleSelectedEvent): void {
+  private _aqiTypeChanged(event: CustomEvent): void {
     if (!this._config || !this.hass || this._config.aqi_type === (event.target as any).value) {
       return;
     }
@@ -90,16 +99,44 @@ export class AirQualityCardConfigurator extends ScopedRegistryHost(LitElement) i
     fireEvent(this, 'config-changed', { config: this._config });
   }
 
+  private _toggleRecommendation(event: CustomEvent): void {
+    if (!this._config || !this.hass || this._config.enable_recommendation === (event.target as any).checked) {
+      return;
+    }
+    this._config = {
+      ...this._config,
+      enable_recommendation: (event.target as any).checked,
+    };
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
+  private _toggleFirstRecommendation(event: CustomEvent): void {
+    if (!this._config || !this.hass || this._config.display_first_recommendation === (event.target as any).checked) {
+      return;
+    }
+    this._config = {
+      ...this._config,
+      display_first_recommendation: (event.target as any).checked,
+    };
+    fireEvent(this, 'config-changed', { config: this._config });
+  }
+
   static styles: CSSResultGroup = css`
+    :host {
+      --mdc-typography-body2-font-size: 13px;
+    }
+
     mwc-select,
     mwc-textfield {
       margin-bottom: 16px;
       display: block;
     }
-    mwc-formfield {
-      padding-bottom: 8px;
+
+    .switch-block {
+      padding: 16px 4px;
     }
-    mwc-switch {
+    .switch-block mwc-switch {
+      margin-right: 16px;
       --mdc-theme-secondary: var(--switch-checked-color);
     }
   `;

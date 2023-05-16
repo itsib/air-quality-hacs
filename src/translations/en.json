@@ -7,8 +7,8 @@
   "aqi_levels": {
     "1": {
       "label": "The Air is Clean",
-      "effects": "",
-      "recommendation": ""
+      "effects": "The air quality is considered good. Air pollution does not pose a health hazard.",
+      "recommendation": "Nope"
     },
     "2": {
       "label": "Moderate Pollution",
@@ -41,12 +41,16 @@
       "recommendation": "All population groups are advised to stay indoors with filtered air. In the open air, it is necessary to use respirators."
     }
   },
-  "aqi_calc_method_selector": {
-    "label": "Choose the AQI calculation method",
-    "normal_way": "Average per day",
-    "instant_way": "Instant"
+  "configurator": {
+    "selector_label": "Choose the AQI calculation method",
+    "option_daily": "Average per day",
+    "option_hourly": "Instant",
+    "toggle_recommendations_label": "Display recommendations in case of environmental pollution.",
+    "toggle_first_recommendation": "Display recommendations at the lowest AQI level."
   },
-  "invalid_configuration": "Invalid Configuration",
-  "invalid_sensors_count": "The number of Air Quality integration sensors should be 7",
-  "invalid_sensor": "Sensor {sensorName} not found"
+  "error": {
+    "invalid_configuration": "Invalid Configuration",
+    "invalid_sensors_count": "The number of Air Quality integration sensors should be 7",
+    "invalid_sensor": "Sensor {sensorName} not found"
+  }
 }

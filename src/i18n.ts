@@ -52,7 +52,7 @@ export function t(string: string, search = '', replace = ''): string {
   }
 
   if (translated && search !== '' && replace !== '') {
-    translated = translated.replace(search, replace);
+    translated = translated.replace(`{${search}}`, replace);
   }
   return translated ?? '';
 }

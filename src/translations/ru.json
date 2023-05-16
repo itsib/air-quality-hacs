@@ -7,8 +7,8 @@
   "aqi_levels": {
     "1": {
       "label": "Воздух в Норме",
-      "effects": "",
-      "recommendation": ""
+      "effects": "Качество воздуха считается хорошим. Загрязнение воздуха не представляет опасности для здоровья.",
+      "recommendation": "Нет"
     },
     "2": {
       "label": "Небольшое Загрязнение",
@@ -41,12 +41,16 @@
       "recommendation": "Всем группам населения рекомендуется оставаться в помещениях с отфильтрованным воздухом. На открытом воздухе необходимо пользоваться респираторами."
     }
   },
-  "aqi_calculation_method_selector": {
-    "label": "Выберите способ расчета AQI",
-    "normal_way": "Средний за сутки",
-    "instant_way": "В реальном времени"
+  "configurator": {
+    "selector_label": "Выберите способ расчета AQI",
+    "option_daily": "Средний за сутки",
+    "option_hourly": "В реальном времени",
+    "toggle_recommendations_label": "Показывать рекомендации при загрязнении окружающей среды.",
+    "toggle_first_recommendation": "Показывать рекомендации при самом низком уровне AQI."
   },
-  "invalid_configuration": "Ошибка в конфигурации",
-  "invalid_sensors_count": "Количество датчиков интеграции Air Quality должно быть равно 7",
-  "invalid_sensor": "Датчик {sensorName} не найден"
+  "error": {
+    "invalid_configuration": "Ошибка в конфигурации",
+    "invalid_sensors_count": "Количество датчиков интеграции Air Quality должно быть равно 7",
+    "invalid_sensor": "Датчик {sensorName} не найден"
+  }
 }
