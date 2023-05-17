@@ -66,6 +66,7 @@ const ct=t=>e=>"function"==typeof e?((t,e)=>(customElements.define(t,e),e))(t,e)
         text-align: left;
         cursor: pointer;
         border: none;
+        outline: none;
         background: transparent;
         display: flex;
         flex-direction: row;
@@ -111,7 +112,7 @@ const ct=t=>e=>"function"==typeof e?((t,e)=>(customElements.define(t,e),e))(t,e)
       }
 
       .readings {
-        margin: 26px -10px 16px;
+        margin: 16px -10px;
         display: flex;
         flex-direction: row;
         align-items: stretch;
@@ -123,6 +124,7 @@ const ct=t=>e=>"function"==typeof e?((t,e)=>(customElements.define(t,e),e))(t,e)
         padding: 0;
         cursor: pointer;
         border: none;
+        outline: none;
         background: transparent;
         text-align: center;
         display: block;
@@ -130,7 +132,7 @@ const ct=t=>e=>"function"==typeof e?((t,e)=>(customElements.define(t,e),e))(t,e)
 
       .readings .sensor-btn .label {
         height: 20px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         color: var(--secondary-text-color);
         font-size: 13px;
         font-weight: 400;
@@ -145,7 +147,7 @@ const ct=t=>e=>"function"==typeof e?((t,e)=>(customElements.define(t,e),e))(t,e)
 
       .readings .sensor-btn .value {
         height: 20px;
-        margin-top: 8px;
+        margin-top: 6px;
         font-size: 13px;
         line-height: 20px;
         white-space: nowrap;
@@ -165,7 +167,7 @@ const ct=t=>e=>"function"==typeof e?((t,e)=>(customElements.define(t,e),e))(t,e)
       .recommendation .paragraph {
         color: var(--secondary-text-color);
       }
-    `}static async getConfigElement(){return await import("./configurator-29907967.js"),document.createElement("air-quality-card-configurator")}static getStubConfig(){return{aqi_type:"daily",enable_recommendation:!0,display_first_recommendation:!1}}render(){return L`
+    `}static async getConfigElement(){return await import("./configurator-95f234d4.js"),document.createElement("air-quality-card-configurator")}static getStubConfig(){return{aqi_type:"daily",enable_recommendation:!0,display_first_recommendation:!1}}render(){return L`
       <ha-card>
         ${this._renderAqiBlock()}
         <span></span>
@@ -173,6 +175,7 @@ const ct=t=>e=>"function"==typeof e?((t,e)=>(customElements.define(t,e),e))(t,e)
         <span></span>
         ${this._renderRecommendationBlock()}
       </ha-card>
+      <portal></portal>
     `}setConfig(t){if(!t)throw new Error(zt("error.invalid_configuration"));t.test_gui&&function(){var t=document.querySelector("home-assistant");if(t=(t=(t=(t=(t=(t=(t=(t=t&&t.shadowRoot)&&t.querySelector("home-assistant-main"))&&t.shadowRoot)&&t.querySelector("app-drawer-layout partial-panel-resolver"))&&t.shadowRoot||t)&&t.querySelector("ha-panel-lovelace"))&&t.shadowRoot)&&t.querySelector("hui-root")){var e=t.lovelace;return e.current_view=t.___curView,e}return null}().setEditMode(!0),this.config=Object.assign({aqi_type:"daily",enable_recommendation:!0,display_first_recommendation:!1},t)}getCardSize(){return 3}shouldUpdate(t){return!!this.config&&function(t,e,i){if(e.has("config")||i)return!0;if(t.config.entity){var n=e.get("hass");return!n||n.states[t.config.entity]!==t.hass.states[t.config.entity]}return!1}(this,t,!1)}set hass(t){this._hass=t,this._sensors||this._validateAndFillSensors()}_renderAqiBlock(){const t=this._getState("aqi");if(!t)return;const e=Bt(t);return L`
       <button type="button" class="aqi-btn-content" @click=${()=>this._detailInfo("aqi")}>
         <div class="image">

@@ -1,12 +1,12 @@
 import { css, html, LitElement, PropertyValues, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { fireEvent, getLovelace, hasConfigOrEntityChanged, HomeAssistant, LovelaceCardEditor } from 'custom-card-helpers';
+import { fireEvent, getLovelace, hasConfigOrEntityChanged, HomeAssistant, LovelaceCard, LovelaceCardEditor } from 'custom-card-helpers';
 import { AirQualityCardConfig, AirQualitySensors, HassEntities } from './types';
 import { t } from './i18n';
 import { getAqiLevel, getAqiLevelIconUrl } from './utils';
 
 @customElement('air-quality-card')
-export class AirQualityCard extends LitElement {
+export class AirQualityCard extends LitElement implements LovelaceCard {
   @state()
   private config!: AirQualityCardConfig;
 
@@ -35,6 +35,7 @@ export class AirQualityCard extends LitElement {
         text-align: left;
         cursor: pointer;
         border: none;
+        outline: none;
         background: transparent;
         display: flex;
         flex-direction: row;
@@ -80,7 +81,7 @@ export class AirQualityCard extends LitElement {
       }
 
       .readings {
-        margin: 26px -10px 16px;
+        margin: 16px -10px;
         display: flex;
         flex-direction: row;
         align-items: stretch;
@@ -92,6 +93,7 @@ export class AirQualityCard extends LitElement {
         padding: 0;
         cursor: pointer;
         border: none;
+        outline: none;
         background: transparent;
         text-align: center;
         display: block;
@@ -99,7 +101,7 @@ export class AirQualityCard extends LitElement {
 
       .readings .sensor-btn .label {
         height: 20px;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         color: var(--secondary-text-color);
         font-size: 13px;
         font-weight: 400;
@@ -114,7 +116,7 @@ export class AirQualityCard extends LitElement {
 
       .readings .sensor-btn .value {
         height: 20px;
-        margin-top: 8px;
+        margin-top: 6px;
         font-size: 13px;
         line-height: 20px;
         white-space: nowrap;
@@ -159,6 +161,7 @@ export class AirQualityCard extends LitElement {
         <span></span>
         ${this._renderRecommendationBlock()}
       </ha-card>
+      <portal></portal>
     `;
   }
 

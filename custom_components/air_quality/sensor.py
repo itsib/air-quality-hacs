@@ -132,7 +132,7 @@ async def async_setup_entry(
 
 class AirQualitySensor(SensorEntity):
     """Representation of a Sun Sensor."""
-
+    _attr_assumed_state = True
     _attr_attribution = ATTRIBUTION
     entity_description: AirqualitySensorEntityDescription
 
@@ -147,7 +147,6 @@ class AirQualitySensor(SensorEntity):
         self.entity_id = ENTITY_ID_SENSOR_FORMAT.format(entity_description.key)
         self._attr_unique_id = f"{entry_id}-{entity_description.key}"
         self.airquality = airquality
-
         self._attr_device_info = DeviceInfo(
             name=NAME,
             identifiers={(DOMAIN, entry_id)},
@@ -161,3 +160,22 @@ class AirQualitySensor(SensorEntity):
         """Return value of sensor."""
         state = self.entity_description.value_fn(self.airquality)
         return state
+
+    @property
+    def entity_picture(self) -> str | None:
+        """Return the entity picture to use in the frontend, if any."""
+        if self.entity_description.key == ATTR_AIR_QUALITY_INDEX \
+                or self.entity_description.key == ATTR_AIR_QUALITY_INDEX_INSTANT:
+            return "/air-quality/aqi.svg"
+        elif self.entity_description.key == ATTR_PM_2_5:
+            return "/air-quality/pm-2-5.svg"
+        elif self.entity_description.key == ATTR_PM_10:
+            return "/air-quality/pm-10.svg"
+        elif self.entity_description.key == ATTR_TEMPERATURE:
+            return "/air-quality/temperature.svg"
+        elif self.entity_description.key == ATTR_HUMIDITY:
+            return "/air-quality/humidity.svg"
+        elif self.entity_description.key == ATTR_PRESSURE:
+            return "/air-quality/pressure.svg"
+        else:
+            return self._attr_entity_picture
