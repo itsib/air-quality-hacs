@@ -7,6 +7,16 @@ declare global {
   }
 }
 
+export enum DangerLevel {
+  FIRST = 1, // 0-50 Excellent
+  SECOND, // 51-100 Good
+  THIRD, // 101–150
+  FOURTH, // 151-200
+  FIFTH, // 201-300
+  SIXTH, // 301-500
+  SEVENTH, // > 500
+}
+
 export interface AirQualityCardConfig extends LovelaceCardConfig {
   type: string;
   aqi_type?: 'hourly' | 'daily';
@@ -30,12 +40,4 @@ export interface HassEntity {
   translation_key?: string;
 }
 
-export interface AirQualitySensors {
-  aqi: string;
-  aqi_instant: string;
-  pm_2_5: string;
-  pm_10: string;
-  humidity: string;
-  pressure: string;
-  temperature: string;
-}
+export type SensorName = 'aqi' | 'aqi_instant' | 'pm_2_5' | 'pm_10' | 'humidity' | 'pressure' | 'temperature';

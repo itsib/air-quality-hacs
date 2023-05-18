@@ -180,13 +180,13 @@ class Airquality(Entity):
             humidity = _r['humidity'] if humidity is None and _r['humidity'] is not None else humidity
             pressure = _r['pressure'] if pressure is None and _r['pressure'] is not None else pressure
 
-        LOGGER.info('AQI: \x1b[33;20m%s\x1b[32m', 'None' if aqi is None else str(aqi))
-        LOGGER.info('AQI Instant: \x1b[33;20m%s\x1b[32m', 'None' if aqi_instant is None else str(aqi_instant))
-        LOGGER.info('PM2.5: \x1b[33;20m%s\x1b[32m', 'None' if pm25 is None else str(pm25))
-        LOGGER.info('PM10: \x1b[33;20m%s\x1b[32m', 'None' if pm10 is None else str(pm10))
-        LOGGER.info('Temperature: \x1b[33;20m%s°C\x1b[32m', 'None' if temperature is None else str(temperature))
-        LOGGER.info('Humidity: \x1b[33;20m%s\x1b[32m', 'None' if humidity is None else str(humidity))
-        LOGGER.info('Pressure: \x1b[33;20m%s\x1b[32m', 'None' if pressure is None else str(pressure))
+        LOGGER.info('AQI: %s', 'None' if aqi is None else str(aqi))
+        LOGGER.info('AQI Instant: %s', 'None' if aqi_instant is None else str(aqi_instant))
+        LOGGER.info('PM2.5: %s', 'None' if pm25 is None else str(pm25))
+        LOGGER.info('PM10: %s', 'None' if pm10 is None else str(pm10))
+        LOGGER.info('Temperature: %s°C', 'None' if temperature is None else str(temperature))
+        LOGGER.info('Humidity: %s', 'None' if humidity is None else str(humidity))
+        LOGGER.info('Pressure: %s', 'None' if pressure is None else str(pressure))
 
         self._attr_aqi = aqi
         self._attr_aqi_instant = aqi_instant

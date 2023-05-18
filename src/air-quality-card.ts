@@ -1,18 +1,31 @@
 import { css, html, LitElement, PropertyValues, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
-import { fireEvent, getLovelace, hasConfigOrEntityChanged, HomeAssistant, LovelaceCard, LovelaceCardEditor } from 'custom-card-helpers';
-import { AirQualityCardConfig, AirQualitySensors, HassEntities } from './types';
+import { fireEvent, getLovelace, HomeAssistant, LovelaceCard, LovelaceCardEditor } from 'custom-card-helpers';
+import { AirQualityCardConfig, HassEntities, SensorName } from './types';
 import { t } from './i18n';
-import { getAqiLevel, getAqiLevelIconUrl } from './utils';
+import { aqiToDangerLevel, getEntitiesIds, getIconOfDangerLevel } from './utils';
 
 @customElement('air-quality-card')
 export class AirQualityCard extends LitElement implements LovelaceCard {
-  @state()
-  private config!: AirQualityCardConfig;
-
-  private _hass!: HomeAssistant & { entities: HassEntities };
-
-  private _sensors?: AirQualitySensors;
+  /**
+   * Hass instance
+   */
+  @property({ attribute: false }) public hass!: HomeAssistant & { entities: HassEntities };
+  /**
+   * Card configuration
+   * @private
+   */
+  @state() private config!: AirQualityCardConfig;
+  /**
+   * Store sensor state
+   * @private
+   */
+  private _states = new Map<SensorName, string>();
+  /**
+   * The key/value map for computing entity ID (value) by sensor name (key)
+   * @private
+   */
+  private _entitiesIds?: Map<SensorName, string>;
 
   static override get styles() {
     return css`
@@ -152,19 +165,6 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
     };
   }
 
-  override render(): TemplateResult {
-    return html`
-      <ha-card>
-        ${this._renderAqiBlock()}
-        <span></span>
-        ${this._renderReadingBlock()}
-        <span></span>
-        ${this._renderRecommendationBlock()}
-      </ha-card>
-      <portal></portal>
-    `;
-  }
-
   setConfig(config?: AirQualityCardConfig): void {
     if (!config) {
       throw new Error(t('error.invalid_configuration'));
@@ -187,74 +187,99 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
   }
 
   shouldUpdate(changedProps: PropertyValues): boolean {
-    if (!this.config) {
+    if (!this.config || !this.hass) {
       return false;
     }
 
-    return hasConfigOrEntityChanged(this, changedProps, false);
-  }
-
-  @property({ attribute: false })
-  set hass(hass: HomeAssistant & { entities: HassEntities }) {
-    this._hass = hass;
-
-    if (!this._sensors) {
-      this._validateAndFillSensors();
+    if (!this._entitiesIds) {
+      this._entitiesIds = getEntitiesIds(this.hass);
     }
+
+    let shouldUpdate = false;
+
+    if (changedProps.has('hass')) {
+      for (const sensorName of this._entitiesIds.keys()) {
+        const entityId = this._entitiesIds.get(sensorName)!;
+        const state = this.hass.states[entityId]?.state;
+        if (this._states.get(sensorName) !== state) {
+          this._states.set(sensorName, state);
+          shouldUpdate = true;
+        }
+      }
+    }
+
+    if (changedProps.has('config')) {
+      shouldUpdate = true;
+    }
+
+    return shouldUpdate;
   }
 
-  private _renderAqiBlock(): TemplateResult | void {
+  override render(): TemplateResult {
+    return html`
+      <ha-card>
+        ${this._renderHeaderBlock()}
+        <span></span>
+        ${this._renderEntitiesBlock()}
+        <span></span>
+        ${this._renderRecommendationBlock()}
+      </ha-card>
+      <portal></portal>
+    `;
+  }
+
+  private _renderHeaderBlock(): TemplateResult | void {
     const aqi = this._getState('aqi');
     if (!aqi) {
       return;
     }
-    const aqiLevel = getAqiLevel(aqi);
+    const dangerLevel = aqiToDangerLevel(aqi);
 
     return html`
-      <button type="button" class="aqi-btn-content" @click=${() => this._detailInfo('aqi')}>
+      <button type="button" class="aqi-btn-content" @click=${() => this._displayDetailEntityInfo('aqi')}>
         <div class="image">
-          <img src="${getAqiLevelIconUrl(aqiLevel)}" alt="AQI Level Icon" width="50" height="50" />
+          <img src="${getIconOfDangerLevel(dangerLevel)}" alt="AQI Level Icon" width="50" height="50" />
         </div>
         <div class="info">
-          <div class="title">${t(`aqi_levels.${aqiLevel}.label`)}</div>
+          <div class="title">${t(`aqi_levels.${dangerLevel}.label`)}</div>
           <div class="aqi-state">${this.config.aqi_type === 'daily' ? t('air_quality_index') : t('air_quality_index_instant')}: <b>${aqi}</b></div>
         </div>
       </button>
     `;
   }
 
-  private _renderReadingBlock(): TemplateResult | void {
+  private _renderEntitiesBlock(): TemplateResult | void {
     return html`
       <div class="readings">
-        <button type="button" class="sensor-btn" @click=${() => this._detailInfo('pm_2_5')}>
+        <button type="button" class="sensor-btn" @click=${() => this._displayDetailEntityInfo('pm_2_5')}>
           <div class="label">PM<sub>2.5</sub></div>
           <div class="icon">
             <img src="/air-quality/pm-2-5.svg" alt="PM2.5" />
           </div>
           <div class="value">${this._getState('pm_2_5') ?? ''} µg/m³</div>
         </button>
-        <button type="button" class="sensor-btn" @click=${() => this._detailInfo('pm_10')}>
+        <button type="button" class="sensor-btn" @click=${() => this._displayDetailEntityInfo('pm_10')}>
           <div class="label">PM<sub>10</sub></div>
           <div class="icon">
             <img src="/air-quality/pm-10.svg" alt="PM10" />
           </div>
           <div class="value">${this._getState('pm_10') ?? ''} µg/m³</div>
         </button>
-        <button type="button" class="sensor-btn" @click=${() => this._detailInfo('temperature')}>
+        <button type="button" class="sensor-btn" @click=${() => this._displayDetailEntityInfo('temperature')}>
           <div class="label">Temperature</div>
           <div class="icon">
             <img src="/air-quality/temperature.svg" alt="Temperature" />
           </div>
           <div class="value">${this._getState('temperature') ?? ''} °C</div>
         </button>
-        <button type="button" class="sensor-btn" @click=${() => this._detailInfo('humidity')}>
+        <button type="button" class="sensor-btn" @click=${() => this._displayDetailEntityInfo('humidity')}>
           <div class="label">Humidity</div>
           <div class="icon">
             <img src="/air-quality/humidity.svg" alt="Humidity" />
           </div>
           <div class="value">${this._getState('humidity') ?? ''} %</div>
         </button>
-        <button type="button" class="sensor-btn" @click=${() => this._detailInfo('pressure')}>
+        <button type="button" class="sensor-btn" @click=${() => this._displayDetailEntityInfo('pressure')}>
           <div class="label">Pressure</div>
           <div class="icon">
             <img src="/air-quality/pressure.svg" alt="Pressure" />
@@ -274,7 +299,7 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
       return;
     }
     const displayFrom = this.config?.display_first_recommendation ? 0 : 1;
-    const aqiLevel = getAqiLevel(aqi);
+    const aqiLevel = aqiToDangerLevel(aqi);
     if (aqiLevel <= displayFrom) {
       return;
     }
@@ -290,71 +315,33 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
   }
 
   /**
-   * We check the number and existence of sensors
+   * Returns entity ID by sensor name
+   * @param name
    * @private
    */
-  private _validateAndFillSensors(): void {
-    const ids = Object.keys(this._hass.entities).filter(id => this._hass.entities[id].platform === 'air_quality');
-    if (ids.length !== 7) {
-      throw new Error(t('error.invalid_sensors_count'));
-    }
-
-    const aqiSensorId = ids.find(id => /^sensor\.air_quality_aqi_?(?<!instant)$/.test(id));
-    if (!aqiSensorId) throw new Error(t('error.invalid_sensor', 'sensorName', 'sensor.air_quality_aqi'));
-
-    const aqiInstantSensorId = ids.find(id => id.startsWith('sensor.air_quality_aqi_instant'));
-    if (!aqiInstantSensorId) throw new Error(t('error.invalid_sensor', 'sensorName', 'sensor.air_quality_aqi_instant'));
-
-    const pm25SensorId = ids.find(id => id.startsWith('sensor.air_quality_pm_2_5'));
-    if (!pm25SensorId) throw new Error(t('error.invalid_sensor', 'sensorName', 'sensor.air_quality_pm_2_5'));
-
-    const pm10SensorId = ids.find(id => id.startsWith('sensor.air_quality_pm_10'));
-    if (!pm10SensorId) throw new Error(t('error.invalid_sensor', 'sensorName', 'sensor.air_quality_pm_10'));
-
-    const temperatureSensorId = ids.find(id => id.startsWith('sensor.air_quality_temperature'));
-    if (!temperatureSensorId) throw new Error(t('error.invalid_sensor', 'sensorName', 'sensor.air_quality_temperature'));
-
-    const humiditySensorId = ids.find(id => id.startsWith('sensor.air_quality_humidity'));
-    if (!humiditySensorId) throw new Error(t('error.invalid_sensor', 'sensorName', 'sensor.air_quality_humidity'));
-
-    const pressureSensorId = ids.find(id => id.startsWith('sensor.air_quality_pressure'));
-    if (!pressureSensorId) throw new Error(t('error.invalid_sensor', 'sensorName', 'sensor.air_quality_pressure'));
-
-    this._sensors = {
-      aqi: aqiSensorId,
-      aqi_instant: aqiInstantSensorId,
-      pm_2_5: pm25SensorId,
-      pm_10: pm10SensorId,
-      temperature: temperatureSensorId,
-      humidity: humiditySensorId,
-      pressure: pressureSensorId,
-    };
-  }
-
-  private _sensorToEntityId(sensor: string): string | undefined {
-    if (!this._sensors) {
+  private _getEntityId(name: SensorName): string | undefined {
+    if (!this._entitiesIds) {
       return undefined;
     }
 
-    if (sensor === 'aqi') {
-      return this.config?.aqi_type === 'daily' ? this._sensors?.aqi : this._sensors?.aqi_instant;
+    if (name === 'aqi') {
+      return this.config?.aqi_type === 'daily' ? this._entitiesIds.get('aqi')! : this._entitiesIds.get('aqi_instant')!;
     } else {
-      return this._sensors[sensor];
+      return this._entitiesIds.get(name)!;
     }
   }
 
   /**
-   * Returns entity state, by sensor name
-   * @param sensor
+   * Returns sensor state, by sensor name
+   * @param name
    * @private
    */
-  private _getState(sensor: keyof AirQualitySensors): number | undefined {
-    const entityId = this._sensorToEntityId(sensor);
-    if (!entityId || !(entityId in this._hass.states)) {
+  private _getState(name: SensorName): number | undefined {
+    const stateRaw = this._states.get(name);
+    if (!stateRaw || stateRaw === 'unknown') {
       return undefined;
     }
-
-    const state = Number(this._hass.states[entityId].state);
+    const state = Number(stateRaw);
     return isNaN(state) ? undefined : state;
   }
 
@@ -363,8 +350,8 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
    * @param sensor
    * @private
    */
-  private _detailInfo(sensor: string): void {
-    const entityId = this._sensorToEntityId(sensor);
+  private _displayDetailEntityInfo(sensor: SensorName): void {
+    const entityId = this._getEntityId(sensor);
     if (!entityId) {
       return;
     }

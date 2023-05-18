@@ -5,9 +5,6 @@ import babel from '@rollup/plugin-babel';
 import { terser } from 'rollup-plugin-terser';
 import json from '@rollup/plugin-json';
 import ignore from './rollup-plugins/ignore';
-import { ignoreTextfieldFiles } from './elements/ignore/textfield';
-import { ignoreSelectFiles } from './elements/ignore/select';
-import { ignoreSwitchFiles } from './elements/ignore/switch';
 import copy from 'rollup-plugin-copy';
 
 const plugins = [
@@ -21,7 +18,16 @@ const plugins = [
   }),
   terser(),
   ignore({
-    files: [...ignoreTextfieldFiles, ...ignoreSelectFiles, ...ignoreSwitchFiles].map(file => require.resolve(file)),
+    debug: true,
+    files: [
+      `${__dirname}/node_modules/@material/mwc-ripple/mwc-ripple.js`,
+      `${__dirname}/node_modules/@material/mwc-menu/mwc-menu.js`,
+      `${__dirname}/node_modules/@material/mwc-menu/mwc-menu-surface.js`,
+      `${__dirname}/node_modules/@material/mwc-list/mwc-list.js`,
+      `${__dirname}/node_modules/@material/mwc-list/mwc-list-item.js`,
+      `${__dirname}/node_modules/@material/mwc-icon/mwc-icon.js`,
+      `${__dirname}/node_modules/@material/mwc-notched-outline/mwc-notched-outline.js`,
+    ],
   }),
   copy({
     targets: [{ src: 'src/icons/**/*', dest: 'custom_components/air_quality/lovelace' }],

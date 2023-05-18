@@ -3,36 +3,25 @@ import { fireEvent, HomeAssistant, LovelaceCardEditor } from 'custom-card-helper
 import { ScopedRegistryHost } from '@lit-labs/scoped-registry-mixin';
 import { AirQualityCardConfig } from './types';
 import { customElement, property, state } from 'lit/decorators.js';
-import { formfieldDefinition } from '../elements/formfield';
-import { selectDefinition } from '../elements/select';
-import { textfieldDefinition } from '../elements/textfield';
-import { switchDefinition } from '../elements/switch';
 import { t } from './i18n';
+import { ELEMENTS_DEFINITIONS } from './elements-definitions';
 
 @customElement('air-quality-card-configurator')
 export class AirQualityCardConfigurator extends ScopedRegistryHost(LitElement) implements LovelaceCardEditor {
-  @property({ attribute: false })
-  public hass?: HomeAssistant;
+  @property({ attribute: false }) public hass!: HomeAssistant;
 
-  @state()
-  private _config?: AirQualityCardConfig;
+  @state() private config!: AirQualityCardConfig;
 
-  @state()
-  private _helpers?: any;
+  @state() private helpers?: any;
 
   private _initialized = false;
 
-  static elementDefinitions = {
-    ...textfieldDefinition,
-    ...selectDefinition,
-    ...switchDefinition,
-    ...formfieldDefinition,
-  };
+  static elementDefinitions = { ...ELEMENTS_DEFINITIONS };
 
   public setConfig(config: AirQualityCardConfig): void {
-    this._config = config;
+    this.config = config;
 
-    this.loadCardHelpers();
+    this._loadCardHelpers();
   }
 
   protected shouldUpdate(): boolean {
@@ -44,7 +33,7 @@ export class AirQualityCardConfigurator extends ScopedRegistryHost(LitElement) i
   }
 
   protected render(): TemplateResult | void {
-    if (!this.hass || !this._helpers) {
+    if (!this.hass || !this.helpers) {
       return html``;
     }
 
@@ -53,7 +42,7 @@ export class AirQualityCardConfigurator extends ScopedRegistryHost(LitElement) i
         naturalMenuWidth
         fixedMenuPosition
         .label=${t('configurator.selector_label')}
-        .value=${this._config?.aqi_type}
+        .value=${this.config?.aqi_type}
         @selected=${this._aqiTypeChanged}
         @closed=${ev => ev.stopPropagation()}
       >
@@ -63,13 +52,13 @@ export class AirQualityCardConfigurator extends ScopedRegistryHost(LitElement) i
 
       <div class="switch-block">
         <mwc-formfield .label=${t('configurator.toggle_recommendations_label')}>
-          <mwc-switch .checked=${!!this._config?.enable_recommendation} @change=${this._toggleRecommendation}></mwc-switch>
+          <mwc-switch .checked=${!!this.config?.enable_recommendation} @change=${this._toggleRecommendation}></mwc-switch>
         </mwc-formfield>
       </div>
 
       <div class="switch-block">
         <mwc-formfield .label=${t('configurator.toggle_first_recommendation')}>
-          <mwc-switch .checked=${!!this._config?.display_first_recommendation} @change=${this._toggleFirstRecommendation}></mwc-switch>
+          <mwc-switch .checked=${!!this.config?.display_first_recommendation} @change=${this._toggleFirstRecommendation}></mwc-switch>
         </mwc-formfield>
       </div>
     `;
@@ -77,48 +66,48 @@ export class AirQualityCardConfigurator extends ScopedRegistryHost(LitElement) i
 
   private _initialize(): void {
     if (this.hass === undefined) return;
-    if (this._config === undefined) return;
-    if (this._helpers === undefined) return;
+    if (this.config === undefined) return;
+    if (this.helpers === undefined) return;
     this._initialized = true;
   }
 
-  private async loadCardHelpers(): Promise<void> {
-    this._helpers = await (window as any).loadCardHelpers();
+  private async _loadCardHelpers(): Promise<void> {
+    this.helpers = await (window as any).loadCardHelpers();
   }
 
   private _aqiTypeChanged(event: CustomEvent): void {
-    if (!this._config || !this.hass || this._config.aqi_type === (event.target as any).value) {
+    if (!this.config || !this.hass || this.config.aqi_type === (event.target as any).value) {
       return;
     }
 
-    this._config = {
-      ...this._config,
+    this.config = {
+      ...this.config,
       aqi_type: (event.target as any).value,
     };
 
-    fireEvent(this, 'config-changed', { config: this._config });
+    fireEvent(this, 'config-changed', { config: this.config });
   }
 
   private _toggleRecommendation(event: CustomEvent): void {
-    if (!this._config || !this.hass || this._config.enable_recommendation === (event.target as any).checked) {
+    if (!this.config || !this.hass || this.config.enable_recommendation === (event.target as any).checked) {
       return;
     }
-    this._config = {
-      ...this._config,
+    this.config = {
+      ...this.config,
       enable_recommendation: (event.target as any).checked,
     };
-    fireEvent(this, 'config-changed', { config: this._config });
+    fireEvent(this, 'config-changed', { config: this.config });
   }
 
   private _toggleFirstRecommendation(event: CustomEvent): void {
-    if (!this._config || !this.hass || this._config.display_first_recommendation === (event.target as any).checked) {
+    if (!this.config || !this.hass || this.config.display_first_recommendation === (event.target as any).checked) {
       return;
     }
-    this._config = {
-      ...this._config,
+    this.config = {
+      ...this.config,
       display_first_recommendation: (event.target as any).checked,
     };
-    fireEvent(this, 'config-changed', { config: this._config });
+    fireEvent(this, 'config-changed', { config: this.config });
   }
 
   static styles: CSSResultGroup = css`
