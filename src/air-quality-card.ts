@@ -1,21 +1,25 @@
-import { css, html, LitElement, PropertyValues, TemplateResult } from 'lit';
-import { customElement, property, state } from 'lit/decorators.js';
-import { fireEvent, getLovelace, HomeAssistant, LovelaceCard, LovelaceCardEditor } from 'custom-card-helpers';
-import { AirQualityCardConfig, HassEntities, SensorName } from './types';
+import { TemplateResult, LitElement, PropertyValues, css, html } from 'lit';
+import { AirQualityCardConfig, HomeAssistant, LovelaceCard, LovelaceCardEditor, SensorName } from './types';
 import { t } from './i18n';
-import { aqiToDangerLevel, getEntitiesIds, getIconOfDangerLevel } from './utils';
+import { aqiToDangerLevel, getEntitiesIds, getIconOfDangerLevel, getLovelace, fireEvent } from './utils';
+import { styles } from './air-quality-card-styles';
 
-@customElement('air-quality-card')
+declare global {
+  interface HTMLElementTagNameMap {
+    'air-quality-card': AirQualityCard;
+  }
+}
+
 export class AirQualityCard extends LitElement implements LovelaceCard {
   /**
    * Hass instance
    */
-  @property({ attribute: false }) public hass!: HomeAssistant & { entities: HassEntities };
+  public hass!: HomeAssistant;
   /**
    * Card configuration
    * @private
    */
-  @state() private config!: AirQualityCardConfig;
+  private config!: AirQualityCardConfig;
   /**
    * Store sensor state
    * @private
@@ -26,138 +30,29 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
    * @private
    */
   private _entitiesIds?: Map<SensorName, string>;
+  /**
+   * If error is defined card displays error message
+   * @private
+   */
+  private _errorMessage?: string;
 
-  static override get styles() {
-    return css`
-      :host {
-        font-family: var(--paper-font-body1_-_font-family);
-        -webkit-font-smoothing: var(--paper-font-body1_-_-webkit-font-smoothing);
-        font-size: var(--paper-font-body1_-_font-size);
-        font-weight: var(--paper-font-body1_-_font-weight);
-        line-height: var(--paper-font-body1_-_line-height);
-        color: var(--primary-text-color);
-      }
+  static get styles() {
+    return styles(css);
+  }
 
-      ha-card {
-        padding: 16px;
-      }
-
-      .aqi-btn-content {
-        height: 64px;
-        width: 100%;
-        text-align: left;
-        cursor: pointer;
-        border: none;
-        outline: none;
-        background: transparent;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-      }
-
-      .aqi-btn-content .image {
-        min-width: 64px;
-        margin-right: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .aqi-btn-content .info {
-        margin-right: auto;
-      }
-
-      .aqi-btn-content .info .title {
-        color: var(--ha-card-header-color, --primary-text-color);
-        font-family: var(--ha-card-header-font-family, inherit);
-        font-size: var(--ha-card-header-font-size, 20px);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        line-height: 1.2;
-      }
-
-      .aqi-btn-content .info .aqi-state {
-        margin-top: 6px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        color: var(--secondary-text-color);
-        font-size: 14px;
-        line-height: 1;
-      }
-
-      .aqi-btn-content .info .aqi-state b {
-        color: var(--primary-text-color);
-        font-weight: 500;
-      }
-
-      .readings {
-        margin: 16px -10px;
-        display: flex;
-        flex-direction: row;
-        align-items: stretch;
-        justify-content: space-around;
-      }
-
-      .readings .sensor-btn {
-        width: 78px;
-        padding: 0;
-        cursor: pointer;
-        border: none;
-        outline: none;
-        background: transparent;
-        text-align: center;
-        display: block;
-      }
-
-      .readings .sensor-btn .label {
-        height: 20px;
-        margin-bottom: 6px;
-        color: var(--secondary-text-color);
-        font-size: 13px;
-        font-weight: 400;
-        line-height: 20px;
-        white-space: nowrap;
-      }
-
-      .readings .sensor-btn .icon img {
-        width: 40px;
-        height: 40px;
-      }
-
-      .readings .sensor-btn .value {
-        height: 20px;
-        margin-top: 6px;
-        font-size: 13px;
-        line-height: 20px;
-        white-space: nowrap;
-      }
-
-      .recommendation {
-        padding-top: 1px;
-      }
-
-      .recommendation .title {
-        margin: 14px 0 4px;
-        color: var(--primary-text-color);
-        font-size: 16px;
-        font-weight: normal;
-      }
-
-      .recommendation .paragraph {
-        color: var(--secondary-text-color);
-      }
-    `;
+  static get properties() {
+    return {
+      hass: {},
+      config: {},
+    };
   }
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import('./configurator');
-    return document.createElement('air-quality-card-configurator') as LovelaceCardEditor;
+    await import('./air-quality-config');
+    return document.createElement('air-quality-config') as LovelaceCardEditor;
   }
 
-  public static getStubConfig(): Record<string, unknown> {
+  public static getStubConfig(): Omit<AirQualityCardConfig, 'type'> {
     return {
       aqi_type: 'daily',
       enable_recommendation: true,
@@ -192,7 +87,12 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
     }
 
     if (!this._entitiesIds) {
-      this._entitiesIds = getEntitiesIds(this.hass);
+      try {
+        this._entitiesIds = getEntitiesIds(this.hass);
+      } catch (e) {
+        this._errorMessage = e.message;
+        return true;
+      }
     }
 
     let shouldUpdate = false;
@@ -216,27 +116,50 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
   }
 
   override render(): TemplateResult {
+    if (this._errorMessage) {
+      return html`
+        <ha-card>
+          <div class="error-card">
+            <div class="title">
+              <span>${t('error.title')}</span>
+            </div>
+            <div class="icon">
+              <img src="/air-quality/broken.svg" alt="Error" />
+            </div>
+            <div class="message">${this._errorMessage}</div>
+          </div>
+        </ha-card>
+      `;
+    }
+
+    const aqi = this._getState('aqi');
+    if (aqi === undefined) {
+      return html`
+        <ha-card>
+          <div class="loading">
+            <ha-circular-progress active></ha-circular-progress>
+          </div>
+        </ha-card>
+      `;
+    }
+
     return html`
       <ha-card>
-        ${this._renderHeaderBlock()}
-        <span></span>
+        ${this._renderHeaderBlock(aqi)}
+        <slot name="header"></slot>
         ${this._renderEntitiesBlock()}
-        <span></span>
-        ${this._renderRecommendationBlock()}
+        <slot name="entities"></slot>
+        ${this._renderRecommendationBlock(aqi)}
+        <slot></slot>
       </ha-card>
-      <portal></portal>
     `;
   }
 
-  private _renderHeaderBlock(): TemplateResult | void {
-    const aqi = this._getState('aqi');
-    if (!aqi) {
-      return;
-    }
+  private _renderHeaderBlock(aqi: number): TemplateResult | void {
     const dangerLevel = aqiToDangerLevel(aqi);
 
     return html`
-      <button type="button" class="aqi-btn-content" @click=${() => this._displayDetailEntityInfo('aqi')}>
+      <button type="button" class="aqi-btn-content" @click="${() => this._displayDetailEntityInfo('aqi')}">
         <div class="image">
           <img src="${getIconOfDangerLevel(dangerLevel)}" alt="AQI Level Icon" width="50" height="50" />
         </div>
@@ -290,12 +213,8 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
     `;
   }
 
-  private _renderRecommendationBlock(): TemplateResult | void {
+  private _renderRecommendationBlock(aqi: number): TemplateResult | void {
     if (!this.config?.enable_recommendation) {
-      return;
-    }
-    const aqi = this._getState('aqi');
-    if (!aqi) {
       return;
     }
     const displayFrom = this.config?.display_first_recommendation ? 0 : 1;
@@ -358,6 +277,8 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
     fireEvent(this, 'hass-more-info', { entityId });
   }
 }
+
+(window as any).customElements.define('air-quality-card', AirQualityCard);
 
 // Puts card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];

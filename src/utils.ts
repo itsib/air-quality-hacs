@@ -1,6 +1,5 @@
-import { SensorName, DangerLevel, HassEntities } from './types';
+import { SensorName, DangerLevel, HassEntities, HomeAssistant, ValidHassDomEvent } from './types';
 import { t } from './i18n';
-import { HomeAssistant } from 'custom-card-helpers';
 
 /**
  * AQI to the Danger Level
@@ -58,7 +57,7 @@ export function getIconOfDangerLevel(level: DangerLevel): string {
 export function getEntitiesIds(hass: HomeAssistant & { entities: HassEntities }): Map<SensorName, string> {
   const ids = Object.keys(hass.entities).filter(id => hass.entities[id].platform === 'air_quality');
   if (ids.length !== 7) {
-    throw new Error(t('error.invalid_sensors_count'));
+    throw new Error(t('error.integration_not_provide_states'));
   }
   const entitiesIds = new Map<SensorName, string>();
 
@@ -91,4 +90,62 @@ export function getEntitiesIds(hass: HomeAssistant & { entities: HassEntities })
   entitiesIds.set('pressure', pressureEntityId);
 
   return entitiesIds;
+}
+
+export function getLovelace(): any {
+  let root: any = document.querySelector('home-assistant');
+  root = root && root.shadowRoot;
+  root = root && root.querySelector('home-assistant-main');
+  root = root && root.shadowRoot;
+  root = root && root.querySelector('app-drawer-layout partial-panel-resolver');
+  root = (root && root.shadowRoot) || root;
+  root = root && root.querySelector('ha-panel-lovelace');
+  root = root && root.shadowRoot;
+  root = root && root.querySelector('hui-root');
+  if (root) {
+    const ll = root.lovelace;
+    ll.current_view = root.___curView;
+    return ll;
+  }
+  return null;
+}
+
+/**
+ * Dispatches a custom event with an optional detail value.
+ *
+ * @param node
+ * @param {string} type Name of event type.
+ * @param {*=} detail Detail value containing event-specific
+ *   payload.
+ * @param options
+ *           cancelable: (boolean|undefined),
+ *           composed: (boolean|undefined) }=}
+ *  options Object specifying options.  These may include:
+ *  `bubbles` (boolean, defaults to `true`),
+ *  `cancelable` (boolean, defaults to false), and
+ *  `node` on which to fire the event (HTMLElement, defaults to `this`).
+ * @return {Event} The new event that was fired.
+ */
+export function fireEvent<HassEvent extends ValidHassDomEvent>(
+  node: HTMLElement | Window,
+  type: HassEvent,
+  detail?: HASSDomEvents[HassEvent],
+  options?: {
+    bubbles?: boolean;
+    cancelable?: boolean;
+    composed?: boolean;
+  },
+) {
+  options = options || {};
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  detail = detail === null || detail === undefined ? {} : detail;
+  const event = new Event(type, {
+    bubbles: options.bubbles === undefined ? true : options.bubbles,
+    cancelable: Boolean(options.cancelable),
+    composed: options.composed === undefined ? true : options.composed,
+  });
+  (event as any).detail = detail;
+  node.dispatchEvent(event);
+  return event;
 }

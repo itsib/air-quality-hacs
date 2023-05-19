@@ -41,16 +41,19 @@
       "recommendation": "All population groups are advised to stay indoors with filtered air. In the open air, it is necessary to use respirators."
     }
   },
-  "configurator": {
+  "config": {
     "selector_label": "Choose the AQI calculation method",
-    "option_daily": "Average per day",
-    "option_hourly": "Instant",
+    "options": {
+      "daily": "Average per day",
+      "hourly": "Instant"
+    },
     "toggle_recommendations_label": "Display recommendations in case of environmental pollution.",
     "toggle_first_recommendation": "Display recommendations at the lowest AQI level."
   },
   "error": {
+    "title": "Malfunction",
     "invalid_configuration": "Invalid Configuration",
-    "invalid_sensors_count": "The number of Air Quality integration sensors should be 7",
+    "integration_not_provide_states": "Integration does not provide data. Check if Air Quality integration is active. Or delete the integration card from the control panel.",
     "invalid_sensor": "Sensor {sensorName} not found"
   }
 }

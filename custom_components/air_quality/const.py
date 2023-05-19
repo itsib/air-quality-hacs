@@ -12,7 +12,7 @@ ATTRIBUTION: Final = "API provided by air.krasn.ru"
 DEVICE_MANUFACTURER: Final = "air.krasn.ru"
 DEVICE_MODEL: Final = "Air Quality Sensors KRSK"
 
-UPDATE_INTERVAL = timedelta(minutes=2)
+UPDATE_INTERVAL = timedelta(minutes=10)
 
 ATTR_AIR_QUALITY_INDEX: Final = "aqi"
 ATTR_AIR_QUALITY_INDEX_INSTANT: Final = "aqi_instant"

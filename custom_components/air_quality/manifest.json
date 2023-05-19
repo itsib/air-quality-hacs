@@ -9,7 +9,7 @@
   "loggers": [
     "air_quality"
   ],
-  "name": "Airquality Sensors KRSK",
+  "name": "Air Quality",
   "requirements": [
     "requests"
   ],
