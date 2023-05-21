@@ -1,4 +1,4 @@
-import { SensorName, DangerLevel, HassEntities, HomeAssistant, ValidHassDomEvent } from './types';
+import { SensorName, DangerLevel, HassEntities, HomeAssistant, ValidHassDomEvent } from './packages/ha-types';
 import { t } from './i18n';
 
 /**

@@ -1,7 +1,7 @@
 {
   "card_name": "Air Quality",
-  "air_quality_index": "Air quality index (AQI)",
-  "air_quality_index_instant": "Air quality index (AQI Instant)",
+  "air_quality_index": "Air quality index",
+  "air_quality_index_instant": "Air quality index",
   "recommendation": "Recommendation:",
   "health_effects": "Health effects:",
   "aqi_levels": {

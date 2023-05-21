@@ -1,6 +1,6 @@
-import { AirQualityCardConfig, HaFormSchema, HomeAssistant, LovelaceCardEditor, ValueChangeEvent } from './types';
-import { css, LitElement, TemplateResult, html } from 'lit';
-import { styles } from './air-quality-config-styles';
+import { AirQualityCardConfig, HaFormSchema, HomeAssistant, LovelaceCardEditor, ValueChangeEvent } from './packages/ha-types';
+import { html, LitElement, TemplateResult } from 'lit';
+import styles from './air-quality-config.scss';
 import { t } from './i18n';
 import { fireEvent } from './utils';
 
@@ -49,9 +49,7 @@ export class AirQualityConfig extends LitElement implements LovelaceCardEditor {
 
   private config!: AirQualityCardConfig;
 
-  static get styles() {
-    return styles(css);
-  }
+  static styles = styles;
 
   static get properties() {
     return {

@@ -5,11 +5,16 @@ import babel from '@rollup/plugin-babel';
 import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
 import copy from 'rollup-plugin-copy';
+import { litScss } from 'rollup-plugin-scss-lit';
 
 const plugins = [
   resolve({ browser: true }),
   commonjs(),
   typescript(),
+  litScss({
+    minify: true,
+    options: { loadPaths: ['node_modules'] },
+  }),
   json(),
   babel({
     babelHelpers: 'bundled',

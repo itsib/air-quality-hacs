@@ -1,7 +1,7 @@
 {
   "card_name": "Качество Воздуха",
-  "air_quality_index": "Индекс качества воздуха (AQI)",
-  "air_quality_index_instant": "Индекс качества воздуха (AQI Instant)",
+  "air_quality_index": "Индекс качества воздуха",
+  "air_quality_index_instant": "Индекс качества воздуха",
   "recommendation": "Рекомендации:",
   "health_effects": "Влияние на здоровье:",
   "aqi_levels": {

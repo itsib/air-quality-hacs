@@ -1,8 +1,8 @@
-import { TemplateResult, LitElement, PropertyValues, css, html } from 'lit';
-import { AirQualityCardConfig, HomeAssistant, LovelaceCard, LovelaceCardEditor, SensorName } from './types';
+import { html, LitElement, PropertyValues, TemplateResult } from 'lit';
+import { AirQualityCardConfig, CardSize, HomeAssistant, LovelaceCard, LovelaceCardEditor, SensorName } from './packages/ha-types';
 import { t } from './i18n';
-import { aqiToDangerLevel, getEntitiesIds, getIconOfDangerLevel, getLovelace, fireEvent } from './utils';
-import { styles } from './air-quality-card-styles';
+import { aqiToDangerLevel, fireEvent, getEntitiesIds, getIconOfDangerLevel, getLovelace } from './utils';
+import styles from './air-quality-card.scss';
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -21,6 +21,11 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
    */
   private config!: AirQualityCardConfig;
   /**
+   * Card size (changes after window resize)
+   * @private
+   */
+  private size: CardSize = CardSize.MD;
+  /**
    * Store sensor state
    * @private
    */
@@ -35,15 +40,19 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
    * @private
    */
   private _errorMessage?: string;
+  /**
+   * Store window resize callback function, for the remove it.
+   * @private
+   */
+  private _resizeCallback?: () => void;
 
-  static get styles() {
-    return styles(css);
-  }
+  static styles = styles;
 
   static get properties() {
     return {
       hass: {},
-      config: {},
+      config: { attribute: false },
+      size: { state: true, type: String },
     };
   }
 
@@ -83,7 +92,7 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
 
   shouldUpdate(changedProps: PropertyValues): boolean {
     if (!this.config || !this.hass) {
-      return false;
+      return true;
     }
 
     if (!this._entitiesIds) {
@@ -108,26 +117,41 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
       }
     }
 
-    if (changedProps.has('config')) {
+    if (changedProps.has('config') || changedProps.has('size')) {
       shouldUpdate = true;
     }
 
     return shouldUpdate;
   }
 
-  override render(): TemplateResult {
+  connectedCallback(): void {
+    super.connectedCallback();
+
+    this._handleWindowResize();
+
+    this._resizeCallback = this._handleWindowResize.bind(this);
+    window.addEventListener('resize', this._resizeCallback);
+  }
+
+  disconnectedCallback(): void {
+    super.disconnectedCallback();
+
+    if (this._resizeCallback) {
+      window.removeEventListener('resize', this._resizeCallback);
+    }
+  }
+
+  render(): TemplateResult {
     if (this._errorMessage) {
       return html`
-        <ha-card>
-          <div class="error-card">
-            <div class="title">
-              <span>${t('error.title')}</span>
-            </div>
-            <div class="icon">
-              <img src="/air-quality/broken.svg" alt="Error" />
-            </div>
-            <div class="message">${this._errorMessage}</div>
+        <ha-card class="${`error-card card-${this.size}`}">
+          <div class="title">
+            <span>${t('error.title')}</span>
           </div>
+          <div class="icon">
+            <img src="/air-quality/broken.svg" alt="Error" />
+          </div>
+          <div class="message">${this._errorMessage}</div>
         </ha-card>
       `;
     }
@@ -135,16 +159,14 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
     const aqi = this._getState('aqi');
     if (aqi === undefined) {
       return html`
-        <ha-card>
-          <div class="loading">
-            <ha-circular-progress active></ha-circular-progress>
-          </div>
+        <ha-card class="${`loading-card card-${this.size}`}">
+          <ha-circular-progress active></ha-circular-progress>
         </ha-card>
       `;
     }
 
     return html`
-      <ha-card>
+      <ha-card class="${`main-card card-${this.size}`}">
         ${this._renderHeaderBlock(aqi)}
         <slot name="header"></slot>
         ${this._renderEntitiesBlock()}
@@ -165,7 +187,12 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
         </div>
         <div class="info">
           <div class="title">${t(`aqi_levels.${dangerLevel}.label`)}</div>
-          <div class="aqi-state">${this.config.aqi_type === 'daily' ? t('air_quality_index') : t('air_quality_index_instant')}: <b>${aqi}</b></div>
+
+          <div class="aqi-state">
+            <span class="hide-sm">${this.config.aqi_type === 'daily' ? t('air_quality_index') : t('air_quality_index_instant')}</span>
+            <span class="short-label">${this.config.aqi_type === 'daily' ? 'AQI' : 'AQI Instant'}</span>
+            <b>${aqi}</b>
+          </div>
         </div>
       </button>
     `;
@@ -179,35 +206,50 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
           <div class="icon">
             <img src="/air-quality/pm-2-5.svg" alt="PM2.5" />
           </div>
-          <div class="value">${this._getState('pm_2_5') ?? ''} µg/m³</div>
+          <div class="value">
+            <span>${this._getState('pm_2_5') ?? ''}</span>
+            <span>µg/m³</span>
+          </div>
         </button>
         <button type="button" class="sensor-btn" @click=${() => this._displayDetailEntityInfo('pm_10')}>
           <div class="label">PM<sub>10</sub></div>
           <div class="icon">
             <img src="/air-quality/pm-10.svg" alt="PM10" />
           </div>
-          <div class="value">${this._getState('pm_10') ?? ''} µg/m³</div>
+          <div class="value">
+            <span>${this._getState('pm_10') ?? ''}</span>
+            <span>µg/m³</span>
+          </div>
         </button>
         <button type="button" class="sensor-btn" @click=${() => this._displayDetailEntityInfo('temperature')}>
           <div class="label">Temperature</div>
           <div class="icon">
             <img src="/air-quality/temperature.svg" alt="Temperature" />
           </div>
-          <div class="value">${this._getState('temperature') ?? ''} °C</div>
+          <div class="value">
+            <span>${this._getState('temperature') ?? ''}</span>
+            <span>°C</span>
+          </div>
         </button>
         <button type="button" class="sensor-btn" @click=${() => this._displayDetailEntityInfo('humidity')}>
           <div class="label">Humidity</div>
           <div class="icon">
             <img src="/air-quality/humidity.svg" alt="Humidity" />
           </div>
-          <div class="value">${this._getState('humidity') ?? ''} %</div>
+          <div class="value">
+            <span>${this._getState('humidity') ?? ''}</span>
+            <span>%</span>
+          </div>
         </button>
         <button type="button" class="sensor-btn" @click=${() => this._displayDetailEntityInfo('pressure')}>
           <div class="label">Pressure</div>
           <div class="icon">
             <img src="/air-quality/pressure.svg" alt="Pressure" />
           </div>
-          <div class="value">${this._getState('pressure')?.toFixed(0) ?? ''} mmHg</div>
+          <div class="value">
+            <span>${this._getState('pressure')?.toFixed(0) ?? ''}</span>
+            <span>mmHg</span>
+          </div>
         </button>
       </div>
     `;
@@ -233,6 +275,10 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
     `;
   }
 
+  private _handleWindowResize(): void {
+    this.size = this.clientWidth < 400 ? CardSize.SM : CardSize.MD;
+  }
+
   /**
    * Returns entity ID by sensor name
    * @param name
@@ -256,6 +302,9 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
    * @private
    */
   private _getState(name: SensorName): number | undefined {
+    if (name === 'aqi' && this.config?.aqi_type === 'hourly') {
+      name = 'aqi_instant';
+    }
     const stateRaw = this._states.get(name);
     if (!stateRaw || stateRaw === 'unknown') {
       return undefined;

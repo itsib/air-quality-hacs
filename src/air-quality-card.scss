@@ -1,0 +1,256 @@
+:host {
+  font-family: var(--paper-font-body1_-_font-family);
+  -webkit-font-smoothing: var(--paper-font-body1_-_-webkit-font-smoothing);
+  font-size: var(--paper-font-body1_-_font-size);
+  font-weight: var(--paper-font-body1_-_font-weight);
+  line-height: var(--paper-font-body1_-_line-height);
+  color: var(--primary-text-color);
+}
+
+.main-card.card-sm .hide-sm {
+  display: none;
+}
+
+.main-card {
+  padding: 16px;
+
+  .aqi-btn-content {
+    height: 64px;
+    width: 100%;
+    padding: 0;
+    text-align: left;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    background: transparent;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    .image {
+      width: 64px;
+      min-width: 64px;
+      height: 64px;
+      margin-right: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .info {
+      max-width: calc(100% - 80px);
+      margin-right: auto;
+
+      .title {
+        color: inherit;
+        font-family: inherit;
+        font-size: var(--ha-card-header-font-size, 24px);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: 1.2;
+      }
+
+      .aqi-state {
+        margin-top: 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: var(--secondary-text-color);
+        font-size: 13px;
+        line-height: 1;
+
+        .short-label {
+
+          &:before {
+            content: "("
+          }
+
+          &:after {
+            content: "):"
+          }
+        }
+
+        b {
+          color: var(--primary-text-color);
+          font-weight: 500;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+
+  .readings {
+    margin: 16px -10px;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-around;
+
+    .sensor-btn {
+      width: 78px;
+      padding: 0;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      background: transparent;
+      text-align: center;
+      display: block;
+
+      .label {
+        height: 20px;
+        max-width: 100%;
+        padding: 0 2px;
+        margin-bottom: 6px;
+        color: var(--secondary-text-color);
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 20px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+
+      .icon img {
+        width: 40px;
+        height: 40px;
+      }
+
+      .value {
+        height: 20px;
+        margin-top: 6px;
+        font-size: 13px;
+        line-height: 20px;
+        white-space: nowrap;
+      }
+    }
+  }
+
+  .recommendation {
+    padding-top: 1px;
+
+    .title {
+      margin: 14px 0 4px;
+      color: var(--primary-text-color);
+      font-size: 16px;
+      font-weight: normal;
+    }
+
+    .paragraph {
+      color: var(--secondary-text-color);
+    }
+  }
+
+  &.card-sm {
+
+    .aqi-btn-content {
+
+      .info {
+
+        .title {
+          font-size: var(--ha-card-header-font-size, 22px);
+        }
+
+        .aqi-state {
+          margin-top: 5px;
+
+          .short-label {
+
+            &:before {
+              content: ""
+            }
+
+            &:after {
+              content: ":"
+            }
+          }
+
+          b {
+            font-size: 16px;
+          }
+        }
+      }
+    }
+
+    .readings {
+
+      .sensor-btn {
+
+        .label {
+          font-size: 12px;
+        }
+
+        .icon img {
+          height: 36px;
+          width: 36px;
+        }
+
+        .value {
+          height: 40px;
+          margin-top: 8px;
+
+          > span {
+            text-align: center;
+            display: block;
+          }
+
+          span:first-child {
+            font-size: 16px;
+          }
+
+          span:last-child {
+            font-size: 12px;
+            line-height: 16px;
+            color: var(--secondary-text-color);
+          }
+        }
+      }
+    }
+
+    .recommendation {
+
+      .title {
+        font-size: 14px;
+      }
+
+      .paragraph {
+        font-size: 13px;
+        line-height: 17px;
+      }
+    }
+  }
+}
+
+.loading-card {
+  padding: 20px 0;
+  text-align: center;
+}
+
+.error-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  .title {
+    padding: 14px 0 28px;
+    font-size: 26px;
+    text-align: left;
+  }
+
+  .icon {
+    text-align: center;
+
+    img {
+      width: 100px;
+      height: 100px;
+    }
+  }
+
+  .message {
+    padding: 18px 10px 6px;
+    text-align: center;
+    font-size: 16px;
+  }
+}
+

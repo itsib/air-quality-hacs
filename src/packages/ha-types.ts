@@ -19,6 +19,11 @@ export enum DangerLevel {
   SEVENTH, // > 500
 }
 
+export enum CardSize {
+  SM = 'sm',
+  MD = 'md',
+}
+
 export interface HomeAssistant {
   entities: HassEntities;
   states: HassEntities;

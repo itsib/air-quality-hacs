@@ -62,6 +62,10 @@ export interface LitElement extends ReactiveElement {
 
   updateComplete(): Promise<boolean>;
 
+  connectedCallback(): void;
+
+  disconnectedCallback(): void;
+
   render(): TemplateResult;
 }
 
