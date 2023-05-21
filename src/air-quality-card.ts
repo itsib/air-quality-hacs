@@ -109,9 +109,10 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
     if (changedProps.has('hass')) {
       for (const sensorName of this._entitiesIds.keys()) {
         const entityId = this._entitiesIds.get(sensorName)!;
-        const state = this.hass.states[entityId]?.state;
-        if (this._states.get(sensorName) !== state) {
-          this._states.set(sensorName, state);
+        const stateNew = this.hass.states[entityId]?.state;
+        const stateOld = this._states.get(sensorName);
+        if (stateOld !== stateNew) {
+          this._states.set(sensorName, stateNew);
           shouldUpdate = true;
         }
       }

@@ -22,7 +22,6 @@ from homeassistant.util import dt as dt_util
 from .const import (
     DOMAIN,
     NAME,
-    ENTITY_ID,
     DEVICE_MODEL,
     ATTRIBUTION,
     DEVICE_MANUFACTURER,
@@ -39,7 +38,6 @@ from .const import (
 from .utils import get_nearest_weather_stations, WeatherStation
 
 LOGGER = logging.getLogger(__name__)
-PLATFORMS = [Platform.SENSOR]
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
@@ -82,7 +80,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 class Airquality(Entity):
     """Representation of the Airquality."""
-    entity_id = ENTITY_ID
+    entity_id = f"{Platform.SENSOR}.{DOMAIN}"
 
     _attr_name = NAME
     _attr_attribution = ATTRIBUTION
@@ -151,14 +149,17 @@ class Airquality(Entity):
         aqi_instant: float or None = None
         pm25: float or None = None
         pm10: float or None = None
-        temperature: float or None = None
-        humidity: float or None = None
-        pressure: float or None = None
+        temperature_list: list[float] = []
+        humidity_list: list[float] = []
+        pressure_list: list[float] = []
         timestamp: int or None = None
 
         for weather_station in self._weather_stations:
-            LOGGER.debug('Fetching readings from weather station "%s"', weather_station.name)
-            LOGGER.debug('URL: %s', weather_station.get_url())
+            LOGGER.debug(
+                'Fetching readings from the Weather station "%s". URL: %s',
+                weather_station.name,
+                weather_station.get_url()
+            )
 
             _r = weather_station.get_readings()
             if _r is None:
@@ -172,21 +173,42 @@ class Airquality(Entity):
 
             timestamp = _r_timestamp
 
-            aqi = _r['aqi'] if aqi is None and _r['aqi'] is not None else aqi
-            aqi_instant = _r['aqi_instant'] if aqi_instant is None and _r['aqi_instant'] is not None else aqi_instant
-            pm25 = _r['pm25'] if pm25 is None and _r['pm25'] is not None else pm25
-            pm10 = _r['pm10'] if pm10 is None and _r['pm10'] is not None else pm10
-            temperature = _r['temperature'] if temperature is None and _r['temperature'] is not None else temperature
-            humidity = _r['humidity'] if humidity is None and _r['humidity'] is not None else humidity
-            pressure = _r['pressure'] if pressure is None and _r['pressure'] is not None else pressure
+            if aqi is None and _r['aqi'] is not None:
+                aqi = _r['aqi']
 
-        LOGGER.info('AQI: %s', 'None' if aqi is None else str(aqi))
-        LOGGER.info('AQI Instant: %s', 'None' if aqi_instant is None else str(aqi_instant))
-        LOGGER.info('PM2.5: %s', 'None' if pm25 is None else str(pm25))
-        LOGGER.info('PM10: %s', 'None' if pm10 is None else str(pm10))
-        LOGGER.info('Temperature: %s°C', 'None' if temperature is None else str(temperature))
-        LOGGER.info('Humidity: %s', 'None' if humidity is None else str(humidity))
-        LOGGER.info('Pressure: %s', 'None' if pressure is None else str(pressure))
+            if aqi_instant is None and _r['aqi_instant'] is not None:
+                aqi_instant = _r['aqi_instant']
+
+            if pm25 is None and _r['pm25'] is not None:
+                pm25 = _r['pm25']
+
+            if pm10 is None and _r['pm10'] is not None:
+                pm10 = _r['pm10']
+
+            if _r['temperature'] is not None:
+                temperature_list.append(_r['temperature'])
+
+            if _r['humidity'] is not None:
+                humidity_list.append(_r['humidity'])
+
+            if _r['pressure'] is not None:
+                pressure_list.append(_r['pressure'])
+
+        temperature = None if len(temperature_list) == 0 else round(sum(temperature_list) / len(temperature_list), 2)
+        humidity = None if len(humidity_list) == 0 else round(sum(humidity_list) / len(humidity_list), 2)
+        pressure = None if len(pressure_list) == 0 else int(sum(pressure_list) / len(pressure_list))
+
+        LOGGER.debug(
+            f"\n-----------------------------------\n"
+            f"       AQI: {'None' if aqi is None else str(aqi)}\n"
+            f"       AQI Instant: {'None' if aqi_instant is None else str(aqi_instant)}\n"
+            f"       PM2.5: {'None' if pm25 is None else str(pm25)}\n"
+            f"       PM10: {'None' if pm10 is None else str(pm10)}\n"
+            f"       Temperature: {'None' if temperature is None else str(temperature)}\n"
+            f"       Humidity: {'None' if humidity is None else str(humidity)}\n"
+            f"       Pressure: {'None' if pressure is None else str(pressure)}\n"
+            f"-----------------------------------"
+        )
 
         self._attr_aqi = aqi
         self._attr_aqi_instant = aqi_instant

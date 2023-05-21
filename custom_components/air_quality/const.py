@@ -4,7 +4,6 @@ from datetime import timedelta
 
 DOMAIN: Final = "air_quality"
 NAME: Final = "Air Quality"
-ENTITY_ID: Final = f"{DOMAIN}.api"
 API_URL: Final = "https://air.krasn.ru/api/2.0"
 
 ATTRIBUTION: Final = "API provided by air.krasn.ru"
