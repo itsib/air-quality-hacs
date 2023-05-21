@@ -1,7 +1,7 @@
 version: '3'
 services:
-  ha_app:
-    container_name: ha_app
+  air_quality_ha:
+    container_name: air_quality_ha
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
       - ./.config:/config
@@ -11,8 +11,8 @@ services:
     privileged: true
     network_mode: host
 
-  ha_db:
-    container_name: ha_db
+  air_quality_db:
+    container_name: air_quality_db
     image: mariadb
     restart: always
     ports:
@@ -25,10 +25,10 @@ services:
       MARIADB_USER: homeassistant
       MARIADB_PASSWORD: SRWB2Rl7thUdQB3uCfJ
     networks:
-      - ha_net
+      - air_quality_net
 
-  ha_mqtt:
-    container_name: ha_mqtt
+  air_quality_mqtt:
+    container_name: air_quality_mqtt
     image: eclipse-mosquitto:2
     restart: always
     volumes:
@@ -39,8 +39,8 @@ services:
       - "1883:1883"
       - "9001:9001"
     networks:
-      - ha_net
+      - air_quality_net
 
 networks:
-  ha_net:
+  air_quality_net:
     driver: bridge
