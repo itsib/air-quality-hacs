@@ -6,7 +6,7 @@ from typing import Any
 from homeassistant.config_entries import ConfigFlow
 from homeassistant.data_entry_flow import FlowResult
 
-from .const import NAME, DOMAIN, API_URL
+from .const import NAME, DOMAIN
 
 
 class AirqualityConfigFlow(ConfigFlow, domain=DOMAIN):

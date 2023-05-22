@@ -6,8 +6,8 @@
 
 ### Интерфейс
 
-![Interface Screenshot](/resources/air-quality-preview.png)
-![Interface Screenshot 2](/resources/air-quality-preview-0.png)
+![Interface Screenshot_1](/resources/air-quality-preview-1.png)
+![Interface Screenshot 0](/resources/air-quality-preview-0.png)
 
 
 Интеграция поставляет данные:

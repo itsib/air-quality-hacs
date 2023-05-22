@@ -1,5 +1,5 @@
-import { SensorName, DangerLevel, HassEntities, HomeAssistant, ValidHassDomEvent } from './packages/ha-types';
-import { t } from './i18n';
+import { SensorName, DangerLevel, HassEntities, HomeAssistant, ValidHassDomEvent } from 'types';
+import { t } from 'i18n';
 
 /**
  * AQI to the Danger Level

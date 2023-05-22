@@ -21,7 +21,13 @@
     "useUnknownInCatchVariables": false,
     "paths": {
       "lit": [
-        "packages/lit.ts"
+        "types/lit.ts"
+      ],
+      "types": [
+        "types/index.ts"
+      ],
+      "i18n": [
+        "i18n/i18n.ts"
       ]
     }
   }

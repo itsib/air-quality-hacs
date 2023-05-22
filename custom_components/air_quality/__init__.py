@@ -80,7 +80,7 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
 class Airquality(Entity):
     """Representation of the Airquality."""
-    entity_id = f"{Platform.SENSOR}.{DOMAIN}"
+    entity_id = f"{DOMAIN}.{DOMAIN}"
 
     _attr_name = NAME
     _attr_attribution = ATTRIBUTION
@@ -200,14 +200,15 @@ class Airquality(Entity):
 
         LOGGER.debug(
             f"\n-----------------------------------\n"
-            f"       AQI: {'None' if aqi is None else str(aqi)}\n"
-            f"       AQI Instant: {'None' if aqi_instant is None else str(aqi_instant)}\n"
-            f"       PM2.5: {'None' if pm25 is None else str(pm25)}\n"
-            f"       PM10: {'None' if pm10 is None else str(pm10)}\n"
-            f"       Temperature: {'None' if temperature is None else str(temperature)}\n"
-            f"       Humidity: {'None' if humidity is None else str(humidity)}\n"
-            f"       Pressure: {'None' if pressure is None else str(pressure)}\n"
-            f"-----------------------------------"
+            f"Air Quality States:\n\n"
+            f"AQI: {'None' if aqi is None else str(aqi)}\n"
+            f"AQI Instant: {'None' if aqi_instant is None else str(aqi_instant)}\n"
+            f"PM2.5: {'None' if pm25 is None else str(pm25)}\n"
+            f"PM10: {'None' if pm10 is None else str(pm10)}\n"
+            f"Temperature: {'None' if temperature is None else str(temperature)}\n"
+            f"Humidity: {'None' if humidity is None else str(humidity)}\n"
+            f"Pressure: {'None' if pressure is None else str(pressure)}\n"
+            f"-----------------------------------\n"
         )
 
         self._attr_aqi = aqi
