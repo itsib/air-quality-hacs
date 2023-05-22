@@ -6,17 +6,17 @@ import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
 import copy from 'rollup-plugin-copy';
 import minifyHTML from 'rollup-plugin-minify-html-literals';
-import { litScss } from 'rollup-plugin-scss-lit';
+import litScss from './rollup-plugins/lit-scss';
 
 const plugins = [
   minifyHTML(),
-  resolve({ browser: true }),
-  commonjs(),
-  typescript(),
   litScss({
     minify: true,
     options: { loadPaths: ['node_modules'] },
   }),
+  resolve({ browser: true }),
+  commonjs(),
+  typescript(),
   json(),
   babel({
     babelHelpers: 'bundled',

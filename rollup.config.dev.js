@@ -4,7 +4,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import babel from '@rollup/plugin-babel';
 import json from '@rollup/plugin-json';
 import copy from 'rollup-plugin-copy';
-import { litScss } from 'rollup-plugin-scss-lit';
+import litScss from './rollup-plugins/lit-scss';
 
 const plugins = [
   resolve({ browser: true }),
