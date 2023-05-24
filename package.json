@@ -20,9 +20,8 @@
   "module": "custom_components/air_quality/lovelace/air-quality-card.js",
   "scripts": {
     "start": "rollup -c rollup.config.dev.js --watch",
-    "build": "npm run lint && npm run clean && rollup -c --environment BUILD:production",
+    "build": "npm run lint && rollup -c --environment BUILD:production",
     "lint": "eslint src/*.ts",
-    "clean": "rimraf custom_components/air_quality/lovelace/**",
     "publish": "bump package.json package-lock.json custom_components/air_quality/manifest.json --tag --push --all"
   },
   "devDependencies": {
@@ -43,10 +42,10 @@
     "eslint-plugin-import": "^2.24.0",
     "eslint-plugin-prettier": "^4.0.0",
     "prettier": "^2.4.1",
-    "rimraf": "^5.0.0",
     "rollup": "^2.58.0",
     "rollup-copy-transform-css": "^1.2.4",
     "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-delete": "^2.0.0",
     "rollup-plugin-minify-html-literals": "^1.2.6",
     "rollup-plugin-typescript2": "^0.34.1",
     "sass": "^1.62.1",

@@ -85,7 +85,6 @@ export class AirQualityConfig extends LitElement implements LovelaceCardEditor {
   }
 
   private _computeLabel(schema: HaFormSchema): string | undefined {
-    // console.log('computeLabel', schema);
     switch (schema.name) {
       case 'aqi_type':
         return t('config.selector_label');

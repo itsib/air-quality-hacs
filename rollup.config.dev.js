@@ -5,8 +5,10 @@ import babel from '@rollup/plugin-babel';
 import json from '@rollup/plugin-json';
 import copy from 'rollup-plugin-copy';
 import litScss from './rollup-plugins/lit-scss';
+import clean from 'rollup-plugin-delete';
 
 const plugins = [
+  clean({ targets: 'custom_components/air_quality/lovelace/*' }),
   resolve({ browser: true }),
   commonjs(),
   typescript(),

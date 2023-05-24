@@ -6,9 +6,11 @@ import terser from '@rollup/plugin-terser';
 import json from '@rollup/plugin-json';
 import copy from 'rollup-plugin-copy';
 import minifyHTML from 'rollup-plugin-minify-html-literals';
+import clean from 'rollup-plugin-delete';
 import litScss from './rollup-plugins/lit-scss';
 
 const plugins = [
+  clean({ targets: 'custom_components/air_quality/lovelace/*' }),
   minifyHTML(),
   litScss({
     minify: true,
