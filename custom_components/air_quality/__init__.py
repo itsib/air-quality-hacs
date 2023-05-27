@@ -7,6 +7,7 @@ import time
 from datetime import datetime
 from typing import Any
 
+import requests
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import Platform, EVENT_CORE_CONFIG_UPDATE
@@ -161,7 +162,13 @@ class Airquality(Entity):
                 weather_station.get_url()
             )
 
-            _r = weather_station.get_readings()
+            _r = None
+            try:
+                _r = weather_station.get_readings()
+            except requests.RequestException as err:
+                LOGGER.warning('Request error: %s', err)
+                continue
+
             if _r is None:
                 continue
 
