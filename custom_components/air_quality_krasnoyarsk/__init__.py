@@ -14,9 +14,9 @@ from homeassistant.const import Platform, EVENT_CORE_CONFIG_UPDATE
 from homeassistant.core import HomeAssistant, callback, CALLBACK_TYPE, Event
 from homeassistant.helpers import event
 from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.integration_platform import (
-    async_process_integration_platform_for_component,
-)
+# from homeassistant.helpers.integration_platform import (
+#     async_process_integration_platform_for_component,
+# )
 from homeassistant.helpers.typing import ConfigType, StateType
 from homeassistant.util import dt as dt_util
 
