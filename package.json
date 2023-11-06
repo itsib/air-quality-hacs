@@ -1,6 +1,6 @@
 {
   "name": "air-quality-krasnoyarsk",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Air quality monitoring system. Works ONLY in the city of Krasnoyarsk, Russian Federation. Provided by air.krasn.ru",
   "author": "Sergey <itsib.su@gmail.com>",
   "license": "MIT",
