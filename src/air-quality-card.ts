@@ -2,15 +2,15 @@ import { html, LitElement, PropertyValues, TemplateResult } from 'lit';
 import { AirQualityCardConfig, CardSize, HomeAssistant, LovelaceCard, LovelaceCardEditor, SensorName } from 'types';
 import { t } from 'i18n';
 import { aqiToDangerLevel, fireEvent, getEntitiesIds, getIconOfDangerLevel, getLovelace } from './utils';
-import styles from './air-quality-krasnoyarsk-card.scss';
+import styles from './air-quality-card.scss';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'air-quality-card-krasnoyarsk': AirQualityKrasnoyarskCard;
+    'air-quality-card-krasnoyarsk': AirQualityCard;
   }
 }
 
-export class AirQualityKrasnoyarskCard extends LitElement implements LovelaceCard {
+export class AirQualityCard extends LitElement implements LovelaceCard {
   /**
    * Hass instance
    */
@@ -57,8 +57,8 @@ export class AirQualityKrasnoyarskCard extends LitElement implements LovelaceCar
   }
 
   public static async getConfigElement(): Promise<LovelaceCardEditor> {
-    await import('./air-quality-krasnoyarsk-config');
-    return document.createElement('air-quality-krasnoyarsk-config') as LovelaceCardEditor;
+    await import('./air-quality-config');
+    return document.createElement('air-quality-config') as LovelaceCardEditor;
   }
 
   public static getStubConfig(): Omit<AirQualityCardConfig, 'type'> {
@@ -150,7 +150,7 @@ export class AirQualityKrasnoyarskCard extends LitElement implements LovelaceCar
             <span>${t('error.title')}</span>
           </div>
           <div class="icon">
-            <img src="/air-quality-krasnoyarsk/broken.svg" alt="Error" />
+            <img src="/air-quality/broken.svg" alt="Error" />
           </div>
           <div class="message">${this._errorMessage}</div>
         </ha-card>
@@ -205,7 +205,7 @@ export class AirQualityKrasnoyarskCard extends LitElement implements LovelaceCar
         <button type="button" class="sensor-btn" @click="${() => this._displayDetailEntityInfo('pm_2_5')}">
           <div class="label">PM<sub>2.5</sub></div>
           <div class="icon">
-            <img src="/air-quality-krasnoyarsk/pm-2-5.svg" alt="PM2.5" />
+            <img src="/air-quality/pm-2-5.svg" alt="PM2.5" />
           </div>
           <div class="value">
             <span>${this._getState('pm_2_5') ?? ''}</span>
@@ -215,7 +215,7 @@ export class AirQualityKrasnoyarskCard extends LitElement implements LovelaceCar
         <button type="button" class="sensor-btn" @click="${() => this._displayDetailEntityInfo('pm_10')}">
           <div class="label">PM<sub>10</sub></div>
           <div class="icon">
-            <img src="/air-quality-krasnoyarsk/pm-10.svg" alt="PM10" />
+            <img src="/air-quality/pm-10.svg" alt="PM10" />
           </div>
           <div class="value">
             <span>${this._getState('pm_10') ?? ''}</span>
@@ -225,7 +225,7 @@ export class AirQualityKrasnoyarskCard extends LitElement implements LovelaceCar
         <button type="button" class="sensor-btn" @click="${() => this._displayDetailEntityInfo('temperature')}">
           <div class="label">Temperature</div>
           <div class="icon">
-            <img src="/air-quality-krasnoyarsk/temperature.svg" alt="Temperature" />
+            <img src="/air-quality/temperature.svg" alt="Temperature" />
           </div>
           <div class="value">
             <span>${this._getState('temperature') ?? ''}</span>
@@ -235,7 +235,7 @@ export class AirQualityKrasnoyarskCard extends LitElement implements LovelaceCar
         <button type="button" class="sensor-btn" @click="${() => this._displayDetailEntityInfo('humidity')}">
           <div class="label">Humidity</div>
           <div class="icon">
-            <img src="/air-quality-krasnoyarsk/humidity.svg" alt="Humidity" />
+            <img src="/air-quality/humidity.svg" alt="Humidity" />
           </div>
           <div class="value">
             <span>${this._getState('humidity') ?? ''}</span>
@@ -245,7 +245,7 @@ export class AirQualityKrasnoyarskCard extends LitElement implements LovelaceCar
         <button type="button" class="sensor-btn" @click="${() => this._displayDetailEntityInfo('pressure')}">
           <div class="label">Pressure</div>
           <div class="icon">
-            <img src="/air-quality-krasnoyarsk/pressure.svg" alt="Pressure" />
+            <img src="/air-quality/pressure.svg" alt="Pressure" />
           </div>
           <div class="value">
             <span>${this._getState('pressure')?.toFixed(0) ?? ''}</span>
@@ -328,12 +328,12 @@ export class AirQualityKrasnoyarskCard extends LitElement implements LovelaceCar
   }
 }
 
-(window as any).customElements.define('air-quality-krasnoyarsk-card', AirQualityKrasnoyarskCard);
+(window as any).customElements.define('air-quality-card', AirQualityCard);
 
 // Puts card into the UI card picker dialog
 (window as any).customCards = (window as any).customCards || [];
 (window as any).customCards.push({
-  type: 'air-quality-krasnoyarsk-card',
+  type: 'air-quality-card',
   name: t('card_name'),
   description: 'Displays the readings of the weather station sensors. Provided by Air Quality integration.',
   // supported: supportsButtonPressTileFeature, // Optional

@@ -4,13 +4,13 @@
   ],
   "config_flow": true,
   "documentation": "https://github.com/itsib/air-quality-hacs",
-  "domain": "air_quality_krasnoyarsk",
+  "domain": "air_quality",
   "iot_class": "cloud_polling",
   "loggers": [
-    "air_quality_krasnoyarsk"
+    "air_quality"
   ],
   "name": "Air Quality Krasnoyarsk",
-  "integrations": ["air_quality"],
+  "integrations": [],
   "requirements": [
     "requests"
   ],
@@ -18,5 +18,5 @@
     "http",
     "lovelace"
   ],
-  "version": "2.0.2"
+  "version": "2.0.3"
 }

@@ -8,7 +8,7 @@ import litScss from './rollup-plugins/lit-scss';
 import clean from 'rollup-plugin-delete';
 
 const plugins = [
-  clean({ targets: 'custom_components/air_quality_krasnoyarsk/lovelace/*' }),
+  clean({ targets: 'custom_components/air_quality/lovelace/*' }),
   resolve({ browser: true }),
   commonjs(),
   typescript(),
@@ -22,15 +22,15 @@ const plugins = [
     exclude: 'node_modules/**',
   }),
   copy({
-    targets: [{ src: 'src/images/**/*', dest: 'custom_components/air_quality_krasnoyarsk/lovelace' }],
+    targets: [{ src: 'src/images/**/*', dest: 'custom_components/air_quality/lovelace' }],
   }),
 ];
 
 export default [
   {
-    input: 'src/air-quality-krasnoyarsk-card.ts',
+    input: 'src/air-quality-card.ts',
     output: {
-      dir: 'custom_components/air_quality_krasnoyarsk/lovelace',
+      dir: 'custom_components/air_quality/lovelace',
       format: 'es',
     },
     plugins: [...plugins],

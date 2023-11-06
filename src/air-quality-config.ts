@@ -1,12 +1,12 @@
 import { AirQualityCardConfig, HaFormSchema, HomeAssistant, LovelaceCardEditor, ValueChangeEvent } from 'types';
 import { html, LitElement, TemplateResult } from 'lit';
-import styles from './air-quality-krasnoyarsk-config.scss';
+import styles from './air-quality-config.scss';
 import { t } from 'i18n';
 import { fireEvent } from './utils';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'air-quality-krasnoyarsk-config': AirQualityKrasnoyarskConfig;
+    'air-quality-config': AirQualityConfig;
   }
 }
 
@@ -44,7 +44,7 @@ const SCHEMA: HaFormSchema[] = [
   },
 ];
 
-export class AirQualityKrasnoyarskConfig extends LitElement implements LovelaceCardEditor {
+export class AirQualityConfig extends LitElement implements LovelaceCardEditor {
   public hass!: HomeAssistant;
 
   private config!: AirQualityCardConfig;
@@ -69,7 +69,7 @@ export class AirQualityKrasnoyarskConfig extends LitElement implements LovelaceC
 
     return html`
       <slot></slot>
-      <div class="air-quality-krasnoyarsk-config">
+      <div class="air-quality-config">
         <ha-form
           .hass=${this.hass}
           .data=${this.config}
@@ -113,4 +113,4 @@ export class AirQualityKrasnoyarskConfig extends LitElement implements LovelaceC
   }
 }
 
-(window as any).customElements.define('air-quality-krasnoyarsk-config', AirQualityKrasnoyarskConfig);
+(window as any).customElements.define('air-quality-config', AirQualityConfig);
