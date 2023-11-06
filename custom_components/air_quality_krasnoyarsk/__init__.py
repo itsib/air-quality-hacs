@@ -46,8 +46,8 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
     # Register UI lovelace card
     card_file_path = os.path.dirname(os.path.realpath(__file__)) + "/lovelace"
-    hass.http.register_static_path("/air-quality", card_file_path, False)
-    add_extra_js_url(hass, "/air-quality/air-quality-card.js?cache=" + str(time.time()), es5=False)
+    hass.http.register_static_path("/air-quality-krasnoyarsk", card_file_path, False)
+    add_extra_js_url(hass, "/air-quality-krasnoyarsk/air-quality-krasnoyarsk-card.js?cache=" + str(time.time()), es5=False)
 
     # Async init entry
     hass.async_create_task(

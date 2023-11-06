@@ -123,10 +123,10 @@ async def async_setup_entry(
 ) -> None:
     """Set up Sun sensor platform."""
 
-    air_quality: Airquality = hass.data[DOMAIN]
+    air_quality_krasnoyarsk: Airquality = hass.data[DOMAIN]
 
     async_add_entities(
-        [AirQualitySensor(air_quality, description, entry.entry_id) for description in SENSOR_TYPES]
+        [AirQualitySensor(air_quality_krasnoyarsk, description, entry.entry_id) for description in SENSOR_TYPES]
     )
 
 
@@ -166,16 +166,16 @@ class AirQualitySensor(SensorEntity):
     #     """Return the entity picture to use in the frontend, if any."""
     #     if self.entity_description.key == ATTR_AIR_QUALITY_INDEX \
     #             or self.entity_description.key == ATTR_AIR_QUALITY_INDEX_INSTANT:
-    #         return "/air-quality/aqi.svg"
+    #         return "/air-quality-krasnoyarsk/aqi.svg"
     #     elif self.entity_description.key == ATTR_PM_2_5:
-    #         return "/air-quality/pm-2-5.svg"
+    #         return "/air-quality-krasnoyarsk/pm-2-5.svg"
     #     elif self.entity_description.key == ATTR_PM_10:
-    #         return "/air-quality/pm-10.svg"
+    #         return "/air-quality-krasnoyarsk/pm-10.svg"
     #     elif self.entity_description.key == ATTR_TEMPERATURE:
-    #         return "/air-quality/temperature.svg"
+    #         return "/air-quality-krasnoyarsk/temperature.svg"
     #     elif self.entity_description.key == ATTR_HUMIDITY:
-    #         return "/air-quality/humidity.svg"
+    #         return "/air-quality-krasnoyarsk/humidity.svg"
     #     elif self.entity_description.key == ATTR_PRESSURE:
-    #         return "/air-quality/pressure.svg"
+    #         return "/air-quality-krasnoyarsk/pressure.svg"
     #     else:
     #         return self._attr_entity_picture

@@ -34,19 +34,19 @@ export function aqiToDangerLevel(aqi: number): DangerLevel {
 export function getIconOfDangerLevel(level: DangerLevel): string {
   switch (level) {
     case DangerLevel.FIRST:
-      return '/air-quality/level-good.svg';
+      return '/air-quality-krasnoyarsk/level-good.svg';
     case DangerLevel.SECOND:
-      return '/air-quality/level-moderate.svg';
+      return '/air-quality-krasnoyarsk/level-moderate.svg';
     case DangerLevel.THIRD:
-      return '/air-quality/level-increased.svg';
+      return '/air-quality-krasnoyarsk/level-increased.svg';
     case DangerLevel.FOURTH:
-      return '/air-quality/level-high.svg';
+      return '/air-quality-krasnoyarsk/level-high.svg';
     case DangerLevel.FIFTH:
-      return '/air-quality/level-very-high.svg';
+      return '/air-quality-krasnoyarsk/level-very-high.svg';
     case DangerLevel.SIXTH:
-      return '/air-quality/level-very-high.svg';
+      return '/air-quality-krasnoyarsk/level-very-high.svg';
     case DangerLevel.SEVENTH:
-      return '/air-quality/level-very-high.svg';
+      return '/air-quality-krasnoyarsk/level-very-high.svg';
   }
 }
 
@@ -55,7 +55,7 @@ export function getIconOfDangerLevel(level: DangerLevel): string {
  * @param hass
  */
 export function getEntitiesIds(hass: HomeAssistant & { entities: HassEntities }): Map<SensorName, string> {
-  const ids = Object.keys(hass.entities).filter(id => hass.entities[id].platform === 'air_quality');
+  const ids = Object.keys(hass.entities).filter(id => hass.entities[id].platform === 'air_quality_krasnoyarsk');
   if (ids.length !== 7) {
     throw new Error(t('error.integration_not_provide_states'));
   }

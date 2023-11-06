@@ -2,8 +2,8 @@
 from typing import Final
 from datetime import timedelta
 
-DOMAIN: Final = "air_quality"
-NAME: Final = "Air Quality"
+DOMAIN: Final = "air_quality_krasnoyarsk"
+NAME: Final = "Air Quality Krasnoyarsk"
 API_URL: Final = "https://air.krasn.ru/api/2.0"
 
 ATTRIBUTION: Final = "API provided by air.krasn.ru"
