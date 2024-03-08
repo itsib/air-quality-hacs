@@ -1,1 +1,1 @@
-export{A as AirQualityCard}from"./index-1bYpwnEI.js";
+export { A as AirQualityCard } from './index-3sJKaO_K.js';
