@@ -1,6 +1,6 @@
 {
   "name": "air-quality",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Air quality monitoring system. Works ONLY in the city of Krasnoyarsk, Russian Federation. Provided by air.krasn.ru",
   "author": "Sergey <itsib.su@gmail.com>",
   "license": "MIT",
@@ -22,7 +22,7 @@
     "build": "rollup -c",
     "build:prod": "rollup -c --environment production",
     "lint": "eslint --no-warn-ignored src/**/*.ts",
-    "deploy": "bump package.json custom_components/air_quality/manifest.json --tag --push --all"
+    "deploy": "git add custom_components/air_quality/lovelace/* && bump package.json custom_components/air_quality/manifest.json --tag --push --all"
   },
   "devDependencies": {
     "@rollup/plugin-babel": "^6.0.4",
