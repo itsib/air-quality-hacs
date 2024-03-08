@@ -24,7 +24,7 @@ const SCHEMA: HaFormSchema[] = [
           { value: 'daily', label: 'options.daily' },
           { value: 'hourly', label: t('options.hourly') },
         ],
-        translation_key: 'config',
+        translation_key: 'config'
       },
     },
   },
