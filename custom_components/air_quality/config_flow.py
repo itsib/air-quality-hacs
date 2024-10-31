@@ -1,4 +1,4 @@
-"""Config flow to configure the Airquality integration."""
+"""Config flow to configure the AirQuality integration."""
 from __future__ import annotations
 
 from typing import Any
@@ -9,8 +9,8 @@ from homeassistant.data_entry_flow import FlowResult
 from .const import NAME, DOMAIN
 
 
-class AirqualityConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Config flow for Airquality."""
+class AirQualityConfigFlow(ConfigFlow, domain=DOMAIN):
+    """Config flow for AirQuality."""
 
     VERSION = 1
 

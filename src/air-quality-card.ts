@@ -6,7 +6,7 @@ import styles from './air-quality-card.scss';
 
 declare global {
   interface HTMLElementTagNameMap {
-    'air-quality-card-krasnoyarsk': AirQualityCard;
+    'air-quality-card': AirQualityCard;
   }
 }
 
@@ -150,7 +150,7 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
             <span>${t('error.title')}</span>
           </div>
           <div class="icon">
-            <img src="/air-quality/broken.svg" alt="Error" />
+            <img src="/air_quality_files/broken.svg" alt="Error" />
           </div>
           <div class="message">${this._errorMessage}</div>
         </ha-card>
@@ -205,7 +205,7 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
         <button type="button" class="sensor-btn" @click="${() => this._displayDetailEntityInfo('pm_2_5')}">
           <div class="label">PM<sub>2.5</sub></div>
           <div class="icon">
-            <img src="/air-quality/pm-2-5.svg" alt="PM2.5" />
+            <img src="/air_quality_files/pm-2-5.svg" alt="PM2.5" />
           </div>
           <div class="value">
             <span>${this._getState('pm_2_5') ?? ''}</span>
@@ -215,7 +215,7 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
         <button type="button" class="sensor-btn" @click="${() => this._displayDetailEntityInfo('pm_10')}">
           <div class="label">PM<sub>10</sub></div>
           <div class="icon">
-            <img src="/air-quality/pm-10.svg" alt="PM10" />
+            <img src="/air_quality_files/pm-10.svg" alt="PM10" />
           </div>
           <div class="value">
             <span>${this._getState('pm_10') ?? ''}</span>
@@ -225,7 +225,7 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
         <button type="button" class="sensor-btn" @click="${() => this._displayDetailEntityInfo('temperature')}">
           <div class="label">Temperature</div>
           <div class="icon">
-            <img src="/air-quality/temperature.svg" alt="Temperature" />
+            <img src="/air_quality_files/temperature.svg" alt="Temperature" />
           </div>
           <div class="value">
             <span>${this._getState('temperature') ?? ''}</span>
@@ -235,7 +235,7 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
         <button type="button" class="sensor-btn" @click="${() => this._displayDetailEntityInfo('humidity')}">
           <div class="label">Humidity</div>
           <div class="icon">
-            <img src="/air-quality/humidity.svg" alt="Humidity" />
+            <img src="/air_quality_files/humidity.svg" alt="Humidity" />
           </div>
           <div class="value">
             <span>${this._getState('humidity') ?? ''}</span>
@@ -245,7 +245,7 @@ export class AirQualityCard extends LitElement implements LovelaceCard {
         <button type="button" class="sensor-btn" @click="${() => this._displayDetailEntityInfo('pressure')}">
           <div class="label">Pressure</div>
           <div class="icon">
-            <img src="/air-quality/pressure.svg" alt="Pressure" />
+            <img src="/air_quality_files/pressure.svg" alt="Pressure" />
           </div>
           <div class="value">
             <span>${this._getState('pressure')?.toFixed(0) ?? ''}</span>

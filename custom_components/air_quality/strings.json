@@ -18,7 +18,8 @@
             "pm_10": { "name": "PM10" },
             "temperature": { "name": "Temperature" },
             "humidity": { "name": "Humidity" },
-            "pressure": { "name": "Pressure" }
+            "pressure": { "name": "Pressure" },
+            "last_seen": { "name": "Last Update" }
         }
     }
 }

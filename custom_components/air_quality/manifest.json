@@ -1,22 +1,24 @@
 {
+  "domain": "air_quality",
+  "name": "Air Quality",
+  "version": "3.0.3",
+  "documentation": "https://github.com/itsib/air-quality-hacs",
+  "issue_tracker": "https://github.com/itsib/air-quality-hacs/issues",
   "codeowners": [
     "@itsib"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/itsib/air-quality-hacs",
-  "domain": "air_quality",
+  "single_config_entry": true,
+  "integration_type": "hub",
   "iot_class": "cloud_polling",
   "loggers": [
     "air_quality"
   ],
-  "name": "Air Quality",
-  "integrations": [],
   "requirements": [
     "requests"
   ],
-  "dependencies": [
+  "after_dependencies": [
     "http",
     "lovelace"
-  ],
-  "version": "3.0.3"
+  ]
 }

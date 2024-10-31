@@ -1,117 +1,41 @@
-import logging
-from datetime import datetime
-from typing import Any
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.const import CONCENTRATION_MICROGRAMS_PER_CUBIC_METER, UnitOfTemperature, PERCENTAGE, UnitOfPressure
 
-import requests
-from geopy import distance as ds
-
-LOGGER = logging.getLogger(__name__)
-
-HEADERS = {
-    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/111.0.0.0 Safari/537.36',
-    'Content-Type': 'application/json',
-}
+from .const import (
+    ATTR_AQI,
+    ATTR_AQI_INSTANT,
+    ATTR_PM_2_5,
+    ATTR_PM_10,
+    ATTR_TEMPERATURE,
+    ATTR_HUMIDITY,
+    ATTR_PRESSURE,
+)
 
 
-class WeatherStation:
-    id: str
-    name: str
-    latitude: float
-    longitude: float
-    distance: float
-    project_name: str
-    project_description: str
+def get_device_class(data_key: str) -> SensorDeviceClass:
+    if data_key == ATTR_AQI_INSTANT or data_key == ATTR_AQI:
+        return SensorDeviceClass.AQI
+    elif data_key == ATTR_PM_10:
+        return SensorDeviceClass.PM10
+    elif data_key == ATTR_PM_2_5:
+        return SensorDeviceClass.PM25
+    elif data_key == ATTR_HUMIDITY:
+        return SensorDeviceClass.HUMIDITY
+    elif data_key == ATTR_TEMPERATURE:
+        return SensorDeviceClass.TEMPERATURE
+    elif data_key == ATTR_PRESSURE:
+        return SensorDeviceClass.ATMOSPHERIC_PRESSURE
+    else:
+        raise ValueError(f"Unknown sensor class {data_key}")
 
-    _data_url: str
-
-    def __init__(self, _api: str, _site: dict[str, Any], _project: dict[str, Any], _distance: float):
-        self.id = str(_site.get('id'))
-        self.name = _site.get('name')
-        self.latitude = _site.get('geom_y')
-        self.longitude = _site.get('geom_x')
-        self.distance = _distance
-        self.project_name = _project.get('name')
-        self.project_description = _project.get('description')
-
-        self._data_url = _api + '/data?time_interval=hour&sites=' + self.id
-
-    def get_url(self) -> str:
-        """Returns weather station data url"""
-        return self._data_url
-
-    def get_readings(self) -> dict[str, int or float or None] or None:
-        """Fetch readings from the weather station"""
-        r = requests.get(self._data_url, headers=HEADERS)
-        r.raise_for_status()
-
-        data: list[dict[str, Any]] = r.json().get('data')
-        if len(data) == 0:
-            return None
-
-        data = sorted(data, key=lambda d: parse_date(d.get('time')))
-
-        # Sometimes the database does not have time to fill with data, then we take the previous record, if it exists
-        readings = data.pop()
-        prev = data.pop() if len(data) > 0 else None
-        if prev is not None and len(readings) < len(prev):
-            readings = prev
-
-        # Remove pressure invalid value
-        pressure: float or None = readings.get('p', None)
-        if pressure is not None and pressure < 500:
-            del readings['p']
-
-        # The least one value should be defined
-        if 'aqi' not in data and 'iaqi' not in data and 'pm25' in data and 'pm10' in data and 't' in data \
-                and 'h' in data and 'p' in data:
-            return None
-
-        LOGGER.debug('Found readings %s', readings)
-
-        return {
-            'aqi': readings.get('aqi', None),
-            'aqi_instant': readings.get('iaqi', None),
-            'pm10': readings.get('pm10', None),
-            'pm25': readings.get('pm25', None),
-            'temperature': readings.get('t', None),
-            'humidity': readings.get('h', None),
-            'pressure': readings.get('p', None),
-            'timestamp': int(parse_date(readings.get('time')).timestamp()),
-        }
-
-
-def get_nearest_weather_stations(api: str, home: tuple[float, float], max_distance: int = 2000) -> list[WeatherStation]:
-    """We get data from weather stations and calculate the coordinates of those that are nearby"""
-
-    url = api + '/projects'
-    r = requests.get(url, headers=HEADERS)
-    r.raise_for_status()
-
-    _projects = r.json().get('data')
-    _weather_stations: list[WeatherStation] = []
-
-    for _project in _projects:
-        project_url = api + '/projects/' + str(_project.get('id'))
-        r = requests.get(project_url, headers=HEADERS)
-        if r.status_code != 200:
-            continue
-
-        _sites = r.json().get('data').get('sites')
-        for _site in _sites:
-            _point = (_site.get('geom_y'), _site.get('geom_x'))
-            _distance = ds.distance(home, _point).m
-
-            if _distance < max_distance:
-                _weather_stations.append(WeatherStation(api, _site, _project, _distance))
-
-    return sorted(_weather_stations, key=lambda l: l.distance)
-
-
-def parse_date(raw: str) -> datetime or None:
-    """Parse date string from API (Like 2023-05-12 17:00:00)"""
-    try:
-        return datetime.strptime(raw + ' +0700', '%Y-%m-%d %H:%M:%S %z')
-
-    except ValueError:
+def get_unit_of_measurement(device_class: SensorDeviceClass) -> str | None:
+    if device_class == SensorDeviceClass.PM10 or device_class == SensorDeviceClass.PM25:
+        return CONCENTRATION_MICROGRAMS_PER_CUBIC_METER
+    elif device_class == SensorDeviceClass.TEMPERATURE:
+        return UnitOfTemperature.CELSIUS
+    elif device_class == SensorDeviceClass.HUMIDITY:
+        return PERCENTAGE
+    elif device_class == SensorDeviceClass.ATMOSPHERIC_PRESSURE:
+        return UnitOfPressure.MMHG
+    else:
         return None

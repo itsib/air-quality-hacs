@@ -34,19 +34,19 @@ export function aqiToDangerLevel(aqi: number): DangerLevel {
 export function getIconOfDangerLevel(level: DangerLevel): string {
   switch (level) {
     case DangerLevel.FIRST:
-      return '/air-quality/level-good.svg';
+      return '/air_quality_files/level-good.svg';
     case DangerLevel.SECOND:
-      return '/air-quality/level-moderate.svg';
+      return '/air_quality_files/level-moderate.svg';
     case DangerLevel.THIRD:
-      return '/air-quality/level-increased.svg';
+      return '/air_quality_files/level-increased.svg';
     case DangerLevel.FOURTH:
-      return '/air-quality/level-high.svg';
+      return '/air_quality_files/level-high.svg';
     case DangerLevel.FIFTH:
-      return '/air-quality/level-very-high.svg';
+      return '/air_quality_files/level-very-high.svg';
     case DangerLevel.SIXTH:
-      return '/air-quality/level-very-high.svg';
+      return '/air_quality_files/level-very-high.svg';
     case DangerLevel.SEVENTH:
-      return '/air-quality/level-very-high.svg';
+      return '/air_quality_files/level-very-high.svg';
   }
 }
 
