@@ -10,4 +10,5 @@ node_modules/
 custom_components/coinbase/
 custom_components/hacs/
 custom_components/sun/
+custom_components/air_quality/lovelace/
 /dist/
