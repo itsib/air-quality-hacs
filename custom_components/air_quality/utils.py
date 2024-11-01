@@ -9,8 +9,8 @@ from .const import (
     ATTR_TEMPERATURE,
     ATTR_HUMIDITY,
     ATTR_PRESSURE,
+    ATTR_UPDATED,
 )
-
 
 def get_device_class(data_key: str) -> SensorDeviceClass:
     if data_key == ATTR_AQI_INSTANT or data_key == ATTR_AQI:
@@ -25,6 +25,8 @@ def get_device_class(data_key: str) -> SensorDeviceClass:
         return SensorDeviceClass.TEMPERATURE
     elif data_key == ATTR_PRESSURE:
         return SensorDeviceClass.ATMOSPHERIC_PRESSURE
+    elif data_key == ATTR_UPDATED:
+        return SensorDeviceClass.DATE
     else:
         raise ValueError(f"Unknown sensor class {data_key}")
 

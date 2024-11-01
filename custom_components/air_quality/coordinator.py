@@ -15,7 +15,9 @@ from .const import (
     PROJECT_URL,
     DEVICE_MANUFACTURER,
     DEVICE_MODEL,
-    UPDATE_INTERVAL,
+    DEFAULT_REFRESH_INTERVAL,
+    DEFAULT_STATIONS_USAGE_COUNT,
+    DEFAULT_SEARCH_RADIUS,
     ATTR_AQI,
     ATTR_AQI_INSTANT,
     ATTR_PM_2_5,
@@ -27,7 +29,7 @@ from .const import (
     API_URL,
     API_HEADERS
 )
-from .weather_station import WeatherStation, Project
+from .weather_station import WeatherStation, Project, WeatherValue
 
 LOGGER = logging.getLogger(__name__)
 
@@ -38,8 +40,6 @@ class AirQualityCoordinator(DataUpdateCoordinator):
     entity_id: str
     home: tuple[float, float]
 
-    _stations_count: int = 2
-    _distance_from_home: float = 2000
     _weather_stations: list[WeatherStation] = []
     _attr_name: str = NAME
     _attr_attribution: str = ATTRIBUTION
@@ -65,10 +65,9 @@ class AirQualityCoordinator(DataUpdateCoordinator):
             hass,
             LOGGER,
             name=self._attr_name,
-            update_interval=UPDATE_INTERVAL,
+            update_interval=DEFAULT_REFRESH_INTERVAL,
             always_update=True,
         )
-
 
     async def _async_setup(self):
         self.home = (self.hass.config.latitude, self.hass.config.longitude)
@@ -88,91 +87,114 @@ class AirQualityCoordinator(DataUpdateCoordinator):
                 _point = (_position.get('geom_y'), _position.get('geom_x'))
                 _distance = ds.distance(self.home, _point).m
 
-                if _distance < self._distance_from_home:
+                if _distance < DEFAULT_SEARCH_RADIUS:
                     station = WeatherStation(self.hass, _project, _position, _distance)
                     self._weather_stations.append(station)
 
         LOGGER.debug('Found %d weather stations nearby', len(self._weather_stations))
 
-
     async def _async_update_data(self):
         """Update weather station data."""
-        aqi: float or None = None
-        aqi_instant: float or None = None
-        pm25: float or None = None
-        pm10: float or None = None
-        temperature_list: list[float] = []
-        humidity_list: list[float] = []
-        pressure_list: list[float] = []
-        timestamp: int or None = None
+        aqi: WeatherValue or None = None
+        aqi_instant: WeatherValue or None = None
+        pm25: WeatherValue or None = None
+        pm10: WeatherValue or None = None
+        temperature_list: list[WeatherValue] = []
+        humidity_list: list[WeatherValue] = []
+        pressure_list: list[WeatherValue] = []
+        updated = datetime.fromtimestamp(int(datetime.today().timestamp()))
 
-        self._weather_stations = sorted(self._weather_stations, key=lambda l: l.rating)
-        _stations = self._weather_stations[0:self._stations_count]
-        _stations = sorted(_stations, key=lambda l: l.distance)
-        _stations.reverse()
+        remained = DEFAULT_STATIONS_USAGE_COUNT
+        self._weather_stations = sorted(self._weather_stations, key=lambda l: l.sort())
+        self._weather_stations.reverse()
+
+        def get_better_value(new_value: WeatherValue | None, old_value: WeatherValue | None) -> WeatherValue | None:
+            if new_value is not None and old_value is not None:
+                return new_value if old_value.timestamp < new_value.timestamp  else old_value
+            elif new_value is not None and old_value is None:
+                return new_value
+            else:
+                return old_value
+
+        def compute_average_value(values: list[WeatherValue]) -> WeatherValue | None:
+            if len(values) == 0:
+                return None
+            values = sorted(values, key=lambda l: l.timestamp)
+
+            _sum = 0
+            _count = 0
+            _timestamp = values[0].timestamp
+            _station = values[0].station
+            _distance = values[0].distance
+            for value in values:
+                if value.timestamp != _timestamp:
+                    break
+                _sum = _sum + value.value
+                _count = _count + 1
+
+            if _count == 0:
+                return None
+
+            return WeatherValue(round(_sum / _count, 2), _timestamp, _station, _distance)
 
         for station in self._weather_stations:
             LOGGER.debug(
                 f'Fetching data from the Weather Station "{station.name}". Distance from house: {station.distance} meters. Rating: {station.rating}'
             )
 
-            _data = await station.async_fetch_data()
-            if _data is None:
+            _dataset = await station.async_fetch_data()
+            if _dataset is None:
+                station.dislike(6)
                 continue
 
-            _r_timestamp = _data.get(ATTR_UPDATED)
+            _aqi = _dataset.get(ATTR_AQI)
+            _aqi_instant = _dataset.get(ATTR_AQI_INSTANT)
+            _pm25 = _dataset.get(ATTR_PM_2_5)
+            _pm10 = _dataset.get(ATTR_PM_10)
+            _temperature = _dataset.get(ATTR_TEMPERATURE)
+            _humidity = _dataset.get(ATTR_HUMIDITY)
+            _pressure = _dataset.get(ATTR_PRESSURE)
 
-            if timestamp is not None and _r_timestamp < timestamp:
-                LOGGER.debug('Skip outdated %s current %d pass %d', station.id, timestamp, _r_timestamp)
-                continue
+            aqi = get_better_value(_aqi, aqi)
+            aqi_instant = get_better_value(_aqi_instant, aqi_instant)
+            pm25 = get_better_value(_pm25, pm25)
+            pm10 = get_better_value(_pm10, pm10)
 
-            timestamp = _r_timestamp
+            if _temperature is not None:
+                temperature_list.append(_temperature)
 
-            if aqi is None and _data[ATTR_AQI] is not None:
-                aqi = _data[ATTR_AQI]
+            if _humidity is not None:
+                humidity_list.append(_humidity)
 
-            if aqi_instant is None and _data[ATTR_AQI_INSTANT] is not None:
-                aqi_instant = _data[ATTR_AQI_INSTANT]
+            if _pressure is not None:
+                pressure_list.append(_pressure)
 
-            if pm25 is None and _data[ATTR_PM_2_5] is not None:
-                pm25 = _data[ATTR_PM_2_5]
-
-            if pm10 is None and _data[ATTR_PM_10] is not None:
-                pm10 = _data[ATTR_PM_10]
-
-            if _data[ATTR_TEMPERATURE] is not None:
-                temperature_list.append(_data[ATTR_TEMPERATURE])
-
-            if _data[ATTR_HUMIDITY] is not None:
-                humidity_list.append(_data[ATTR_HUMIDITY])
-
-            if _data[ATTR_PRESSURE] is not None:
-                pressure_list.append(_data[ATTR_PRESSURE])
-
-            _count = min(len(temperature_list), len(humidity_list), len(pressure_list))
-            if _count >= self._stations_count \
-                    and aqi is not None \
+            if aqi is not None \
                     and aqi_instant is not None \
                     and pm25 is not None \
-                    and pm10 is not None:
+                    and pm10 is not None \
+                    and min(len(temperature_list), len(humidity_list), len(pressure_list)) > 0:
+                remained = remained - 1
+
+            if remained <= 0:
                 break
 
-        temperature = None if len(temperature_list) == 0 else round(sum(temperature_list) / len(temperature_list), 2)
-        humidity = None if len(humidity_list) == 0 else round(sum(humidity_list) / len(humidity_list), 2)
-        pressure = None if len(pressure_list) == 0 else round(sum(pressure_list) / len(pressure_list), 0)
-        updated = datetime.now()
+
+        temperature = compute_average_value(temperature_list)
+        humidity = compute_average_value(humidity_list)
+        pressure = compute_average_value(pressure_list)
 
         LOGGER.debug(
             f"\n-----------------------------------\n"
-            f"\x1b[4mAir Quality States:\x1b[0m\n\n"
-            f"AQI: {'None' if aqi is None else str(aqi)}\n"
-            f"AQI Instant: {'None' if aqi_instant is None else str(aqi_instant)}\n"
-            f"PM2.5: {'None' if pm25 is None else str(pm25)}\n"
-            f"PM10: {'None' if pm10 is None else str(pm10)}\n"
-            f"Temperature: {'None' if temperature is None else str(temperature)}\n"
-            f"Humidity: {'None' if humidity is None else str(humidity)}\n"
-            f"Pressure: {'None' if pressure is None else str(pressure)}\n"
-            f"Last Seen: {updated}\n"
+            f"Air Quality States:\n\n"
+            f"AQI: {'None' if aqi is None else str(aqi.value)}\n"
+            f"AQI Instant: {'None' if aqi_instant is None else str(aqi_instant.value)}\n"
+            f"PM2.5: {'None' if pm25 is None else str(pm25.value)}\n"
+            f"PM10: {'None' if pm10 is None else str(pm10.value)}\n"
+            f"Temperature: {'None' if temperature is None else str(temperature.value)}\n"
+            f"Humidity: {'None' if humidity is None else str(humidity.value)}\n"
+            f"Pressure: {'None' if pressure is None else str(pressure.value)}\n"
+            f"Updated: {updated.isoformat()}\n"
             f"-----------------------------------\n"
         )
 
@@ -187,7 +209,6 @@ class AirQualityCoordinator(DataUpdateCoordinator):
             ATTR_UPDATED: updated,
         }
 
-
     async def _async_get_projects(self) -> list[dict[str, Any]]:
         """Get information about organizations that provide data"""
         url = API_URL + '/projects'
@@ -196,7 +217,6 @@ class AirQualityCoordinator(DataUpdateCoordinator):
         res.raise_for_status()
 
         return res.json().get('data')
-
 
     async def _async_get_weather_stations_positions(self, url: str) -> list[dict[str, Any]] | None:
         """Get information about the location of the weather station"""

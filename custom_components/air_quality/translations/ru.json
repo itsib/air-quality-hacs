@@ -14,12 +14,12 @@
     "sensor": {
       "aqi": { "name": "AQI" },
       "aqi_instant": { "name": "AQI Текущий" },
-      "pm_2_5": { "name": "PM2.5" },
-      "pm_10": { "name": "PM10" },
+      "pm_2_5": { "name": "Частицы PM2.5" },
+      "pm_10": { "name": "Частицы PM10" },
       "temperature": { "name": "Температура" },
       "humidity": { "name": "Влажность" },
       "pressure": { "name": "Атмосферное Давление" },
-      "last_seen": { "name": "Был Обновлен" }
+      "updated": { "name": "Был Обновлен" }
     }
   }
 }

@@ -17,9 +17,9 @@ from .const import (
     ATTR_TEMPERATURE,
     ATTR_HUMIDITY,
     ATTR_PRESSURE,
-    ATTR_UPDATED,
     API_HEADERS,
     API_URL,
+    DEFAULT_SEARCH_RADIUS,
 )
 
 LOGGER = logging.getLogger(__name__)
@@ -53,6 +53,24 @@ class Project:
         self.owner_name = _owner.get('name')
         self.owner_url = _owner.get('url')
 
+class WeatherValue:
+    value: float
+    timestamp: int
+    station: str
+    distance: float
+
+    def __init__(self, value: float, timestamp: int, station: str, distance: float):
+        self.value = value
+        self.timestamp = timestamp
+        self.station = station
+        self.distance = distance
+
+    def __str__(self):
+        return f"WeatherValue(value='{self.value}', timestamp='{self.timestamp}', station='{self.station}', distance='{self.distance}')"
+
+    def __repr__(self):
+        return f"WeatherValue(value='{self.value}', timestamp='{self.timestamp}', station='{self.station}', distance='{self.distance}')"
+
 
 class WeatherStation:
     """
@@ -80,7 +98,6 @@ class WeatherStation:
     rating: int = 100
 
     _hass: HomeAssistant
-
     _endpoint_url: str
 
     def __init__(self, hass: HomeAssistant, project: Project, info: dict[str, Any], distance: float):
@@ -95,68 +112,97 @@ class WeatherStation:
         self._endpoint_url = API_URL + '/data?time_interval=hour&sites=' + self.id
 
     @staticmethod
-    def parse_date(raw: str) -> datetime or None:
+    def parse_date(raw: str | None) -> int | None:
         """Parse date string from API (Like 2023-05-12 17:00:00)"""
+        if raw is None:
+            return None
         try:
-            return datetime.strptime(raw + ' +0700', '%Y-%m-%d %H:%M:%S %z')
+            return int(datetime.strptime(raw + ' +0700', '%Y-%m-%d %H:%M:%S %z').timestamp())
         except ValueError:
             return None
 
-    def _format_result(self, _data: list[dict[str, Any]]):
-        """Format result for API call, and compute best readings"""
-        _data = sorted(_data, key=lambda d: self.parse_date(d.get('time')))
+    def get_value(self, key: str, dataset: list[dict[str, Any]]) -> WeatherValue | None:
+        latest = dataset[0]
+        previous = dataset[1]
+        selected = None
 
-        # Sometimes the database does not have time to fill with data, then we take the previous record, if it exists
-        readings = _data.pop()
-        prev = _data.pop() if len(_data) > 0 else None
-        if prev is not None and len(readings) < len(prev):
-            readings = prev
+        if latest is not None and previous is None:
+            selected = latest
+        elif latest is not None and previous is not None:
+            _latestValue = latest.get(key)
+            _previousValue = previous.get(key)
+            selected = previous if _latestValue is None else latest
+        elif previous is not None:
+            selected = previous
 
-        # Remove pressure invalid value
-        pressure: float | None = readings.get('p', None)
-        if pressure is not None and pressure < 500:
-            del readings['p']
-
-        # The least one value should be defined
-        if 'aqi' not in readings \
-                and 'iaqi' not in readings \
-                and 'pm25' in readings \
-                and 'pm10' in readings \
-                and 't' in readings \
-                and 'h' in readings \
-                and 'p' in readings:
-            self.rating -= 15
+        if selected is None:
             return None
 
-        LOGGER.debug('Found readings %s', readings)
 
-        if len(readings) < 7:
-            self.rating += (len(readings) - 7)
+        timestamp = self.parse_date(selected.get('time'))
+        value = selected.get(key)
+        if timestamp is None or value is None:
+            return None
 
-        return {
-            ATTR_AQI: readings.get('aqi', None),
-            ATTR_AQI_INSTANT: readings.get('iaqi', None),
-            ATTR_PM_10: readings.get('pm10', None),
-            ATTR_PM_2_5: readings.get('pm25', None),
-            ATTR_TEMPERATURE: readings.get('t', None),
-            ATTR_HUMIDITY: readings.get('h', None),
-            ATTR_PRESSURE: readings.get('p', None),
-            ATTR_UPDATED: int(self.parse_date(readings.get('time')).timestamp()),
+        # Remove pressure invalid value
+        if key == 'p' and value < 500:
+            return None
+
+        return WeatherValue(value, timestamp, self.name, self.distance)
+
+    def _format_result(self, _dataset: list[dict[str, Any]]) -> dict[str, WeatherValue | None] | None:
+        """Format result for API call, and compute best readings"""
+        _dataset = sorted(_dataset, key=lambda d: self.parse_date(d.get('time')))
+        _dataset.reverse()
+
+        _aqi = self.get_value('aqi', _dataset)
+        _aqi_instant = self.get_value('iaqi', _dataset)
+        _pm_10 = self.get_value('pm10', _dataset)
+        _pm_2_5 = self.get_value('pm25', _dataset)
+        _temperature = self.get_value('t', _dataset)
+        _humidity = self.get_value('h', _dataset)
+        _pressure = self.get_value('p', _dataset)
+
+        if _aqi is None and _aqi_instant is None \
+                and _pm_10 is None and _pm_2_5 is None \
+                and _temperature is None and _humidity is None and _pressure is None:
+            return None
+
+        result = {
+            ATTR_AQI: _aqi,
+            ATTR_AQI_INSTANT: _aqi_instant,
+            ATTR_PM_10: _pm_10,
+            ATTR_PM_2_5: _pm_2_5,
+            ATTR_TEMPERATURE: _temperature,
+            ATTR_HUMIDITY: _humidity,
+            ATTR_PRESSURE: _pressure,
         }
+        return result
 
-    async def async_fetch_data(self) -> dict[str, int | float | None] | None:
+    def like(self, count: int = 1):
+        self.rating = self.rating + count
+
+    def dislike(self, count: int = 1):
+        self.rating = self.rating - count
+
+    def sort(self):
+        # _distanceRating = 100 - (self.distance / DEFAULT_SEARCH_RADIUS * 100)
+        # return _distanceRating + self.rating
+        return 100 - (self.distance / DEFAULT_SEARCH_RADIUS * 100)
+
+
+    async def async_fetch_data(self) -> dict[str, WeatherValue | None] | None:
         """Fetch readings from the weather station"""
-        _data: list[dict[str, Any]]
+        _dataset: list[dict[str, Any]]
 
         try:
             res = await self._hass.async_add_executor_job(requests.get, self._endpoint_url, dict(headers = API_HEADERS))
             res.raise_for_status()
-            _data = res.json().get('data')
-            if len(_data) == 0:
-                self.rating -= 10
+            _dataset = res.json().get('data')
+            if len(_dataset) == 0:
                 return None
 
-            return self._format_result(_data)
+            return self._format_result(_dataset)
 
         except requests.RequestException as err:
             LOGGER.warning('Request error: %s', err)
