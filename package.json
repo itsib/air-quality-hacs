@@ -22,7 +22,9 @@
   "scripts": {
     "build": "vite build --mode production",
     "lint": "eslint -c eslint.config.js",
+    "patch:manifest": "tsx ../../plugins/patch-manifest.ts air-quality",
     "preversion": "npm run lint",
+    "version": "npm run build && npm run patch:manifest",
     "postversion": "git push && git push --tags"
   },
   "devDependencies": {
