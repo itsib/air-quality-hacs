@@ -18,5 +18,5 @@ PROJECT_URL: Final = "https://air.krasn.ru/"
 DEVICE_MANUFACTURER: Final = "air.krasn.ru"
 DEVICE_MODEL: Final = "Air Quality Sensors"
 
-DEFAULT_REFRESH_INTERVAL = timedelta(minutes=3)
+DEFAULT_REFRESH_INTERVAL = timedelta(minutes=15)
 DEFAULT_SEARCH_RADIUS = 2000
