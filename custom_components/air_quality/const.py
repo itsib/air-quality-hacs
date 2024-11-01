@@ -1,8 +1,6 @@
-"""Constants of the Airquality Sensors"""
+"""Constants of the Air Quality Sensors"""
 from datetime import timedelta
 from typing import Final
-
-from homeassistant.components.esphome.const import PROJECT_URLS
 
 DOMAIN: Final = "air_quality"
 BASE_URL = "/air_quality_files"
@@ -20,30 +18,5 @@ PROJECT_URL: Final = "https://air.krasn.ru/"
 DEVICE_MANUFACTURER: Final = "air.krasn.ru"
 DEVICE_MODEL: Final = "Air Quality Sensors"
 
-DEFAULT_REFRESH_INTERVAL = timedelta(minutes=15)
-DEFAULT_STATIONS_USAGE_COUNT = 3
+DEFAULT_REFRESH_INTERVAL = timedelta(minutes=3)
 DEFAULT_SEARCH_RADIUS = 2000
-
-ATTR_AQI: Final = "aqi"
-ATTR_AQI_INSTANT: Final = "aqi_instant"
-ATTR_PM_2_5: Final = "pm_2_5"
-ATTR_PM_10: Final = "pm_10"
-ATTR_TEMPERATURE: Final = "temperature"
-ATTR_HUMIDITY: Final = "humidity"
-ATTR_PRESSURE: Final = "pressure"
-ATTR_UPDATED: Final = "updated"
-
-
-SENSORS: Final = [
-    ATTR_AQI,
-    ATTR_AQI_INSTANT,
-    ATTR_PM_2_5,
-    ATTR_PM_10,
-    ATTR_TEMPERATURE,
-    ATTR_HUMIDITY,
-    ATTR_PRESSURE,
-]
-
-DIAGNOSTIC_SENSORS = [
-    ATTR_UPDATED,
-]

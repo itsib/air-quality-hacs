@@ -56,7 +56,7 @@ export function getIconOfDangerLevel(level: DangerLevel): string {
  */
 export function getEntitiesIds(hass: HomeAssistant & { entities: HassEntities }): Map<SensorName, string> {
   const ids = Object.keys(hass.entities).filter(id => hass.entities[id].platform === 'air_quality');
-  if (ids.length !== 8) {
+  if (ids.length < 7) {
     throw new Error(t('error.integration_not_provide_states'));
   }
   const entitiesIds = new Map<SensorName, string>();

@@ -18,7 +18,7 @@
       "pm_10": { "name": "Частицы PM10" },
       "temperature": { "name": "Температура" },
       "humidity": { "name": "Влажность" },
-      "pressure": { "name": "Атмосферное Давление" },
+      "pressure": { "name": "Атм. Давление" },
       "updated": { "name": "Был Обновлен" }
     }
   }
