@@ -75,6 +75,9 @@ class AirQualitySensor(CoordinatorEntity, RestoreSensor):
 
     async def async_added_to_hass(self):
         result = await self.async_get_last_sensor_data()
+        if result is None or result.native_value is None:
+            return
+
         self._attr_native_value = result.native_value
         self._attr_native_unit_of_measurement = result.native_unit_of_measurement
 
