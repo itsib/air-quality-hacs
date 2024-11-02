@@ -23,16 +23,16 @@ def get_device_class(entity_key: str) -> SensorDeviceClass:
     else:
         raise ValueError(f"Unknown sensor class {entity_key}")
 
-def get_unit_of_measurement(device_class: SensorDeviceClass) -> str | None:
-    if device_class == SensorDeviceClass.PM10 or device_class == SensorDeviceClass.PM25:
+def get_unit_of_measurement(entity_key: str) -> str | None:
+    if entity_key == EntityKey.PM_10 or entity_key == EntityKey.PM_2_5:
         return "µg/m³"
-    elif device_class == SensorDeviceClass.TEMPERATURE:
+    elif entity_key == EntityKey.TEMPERATURE:
         return "°C"
-    elif device_class == SensorDeviceClass.HUMIDITY:
+    elif entity_key == EntityKey.HUMIDITY:
         return "%"
-    elif device_class == SensorDeviceClass.ATMOSPHERIC_PRESSURE:
+    elif entity_key == EntityKey.PRESSURE:
         return "mmHg"
-    elif device_class == SensorDeviceClass.DISTANCE:
+    elif entity_key == EntityKey.DISTANCE:
         return "m"
     else:
         return None

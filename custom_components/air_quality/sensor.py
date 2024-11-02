@@ -54,7 +54,7 @@ class AirQualitySensor(CoordinatorEntity, RestoreSensor):
         self._attr_translation_key = entity_key
         self._attr_unique_id = f"{entry_id}_{entity_key}"
         self._attr_device_class = get_device_class(entity_key)
-        self._attr_native_unit_of_measurement = get_unit_of_measurement(self._attr_device_class)
+        self._attr_native_unit_of_measurement = get_unit_of_measurement(entity_key)
         self._attr_device_info = self.coordinator.device
         self._attr_entity_category = get_entity_category(entity_key)
         self._attr_state_class = get_state_class(entity_key)
@@ -85,7 +85,7 @@ class AirQualitySensor(CoordinatorEntity, RestoreSensor):
 
         return self._attr_native_value
 
-    @cached_property
-    def suggested_unit_of_measurement(self) -> str | None:
-        return get_unit_of_measurement(self.device_class)
+    # @cached_property
+    # def suggested_unit_of_measurement(self) -> str | None:
+    #     return get_unit_of_measurement(self.entity_key)
 

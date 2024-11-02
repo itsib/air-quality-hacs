@@ -18,11 +18,11 @@ from .const import (
     DEVICE_MODEL,
     DEFAULT_REFRESH_INTERVAL,
     DEFAULT_SEARCH_RADIUS,
-
     API_URL,
     API_HEADERS
 )
 from .utils.entity_keys import EntityKey
+from .utils.converters import get_unit_of_measurement
 from .utils.organization import Organization
 from .weather_station import WeatherStation
 
@@ -169,13 +169,13 @@ class AirQualityCoordinator(DataUpdateCoordinator):
             f"Air Quality States:\n\n"
             f"AQI: {'None' if aqi is None else str(aqi)}\n"
             f"AQI Instant: {'None' if aqi_instant is None else str(aqi_instant)}\n"
-            f"PM2.5: {'None' if pm25 is None else str(pm25)}\n"
-            f"PM10: {'None' if pm10 is None else str(pm10)}\n"
-            f"Temperature: {'None' if temperature is None else str(temperature)}\n"
-            f"Humidity: {'None' if humidity is None else str(humidity)}\n"
-            f"Pressure: {'None' if pressure is None else str(pressure)}\n"
+            f"PM2.5: {'None' if pm25 is None else str(pm25)} {get_unit_of_measurement(EntityKey.PM_2_5)}\n"
+            f"PM10: {'None' if pm10 is None else str(pm10)} {get_unit_of_measurement(EntityKey.PM_10)}\n"
+            f"Temperature: {'None' if temperature is None else str(temperature)} {get_unit_of_measurement(EntityKey.TEMPERATURE)}\n"
+            f"Humidity: {'None' if humidity is None else str(humidity)} {get_unit_of_measurement(EntityKey.HUMIDITY)}\n"
+            f"Pressure: {'None' if pressure is None else str(pressure)} {get_unit_of_measurement(EntityKey.PRESSURE)}\n"
             f"Updated: {updated.isoformat()}\n"
-            f"Distance: {'None' if distance is None else str(distance)}\n"
+            f"Distance: {'None' if distance is None else str(distance)} {get_unit_of_measurement(EntityKey.DISTANCE)}\n"
             f"-----------------------------------\n"
         )
 

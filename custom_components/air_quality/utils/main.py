@@ -17,13 +17,13 @@ class TestUtilsLib(unittest.TestCase):
         self.assertEqual(get_device_class(EntityKey.UPDATED), SensorDeviceClass.DATE)
 
     def test_get_unit_of_measurement(self):
-        self.assertEqual(get_unit_of_measurement(SensorDeviceClass.AQI), None)
-        self.assertEqual(get_unit_of_measurement(SensorDeviceClass.PM10), "µg/m³")
-        self.assertEqual(get_unit_of_measurement(SensorDeviceClass.PM25), "µg/m³")
-        self.assertEqual(get_unit_of_measurement(SensorDeviceClass.TEMPERATURE), "°C")
-        self.assertEqual(get_unit_of_measurement(SensorDeviceClass.HUMIDITY), "%")
-        self.assertEqual(get_unit_of_measurement(SensorDeviceClass.ATMOSPHERIC_PRESSURE), "mmHg")
-        self.assertEqual(get_unit_of_measurement(SensorDeviceClass.DATE), None)
+        self.assertEqual(get_unit_of_measurement(EntityKey.AQI), None)
+        self.assertEqual(get_unit_of_measurement(EntityKey.PM_10), "µg/m³")
+        self.assertEqual(get_unit_of_measurement(EntityKey.PM_2_5), "µg/m³")
+        self.assertEqual(get_unit_of_measurement(EntityKey.TEMPERATURE), "°C")
+        self.assertEqual(get_unit_of_measurement(EntityKey.HUMIDITY), "%")
+        self.assertEqual(get_unit_of_measurement(EntityKey.PRESSURE), "mmHg")
+        self.assertEqual(get_unit_of_measurement(EntityKey.UPDATED), None)
 
     def test_parse_date(self):
         self.assertEqual(parse_date("2024-10-01 00:00:00"), 1727715600)
